@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+dockerfile = "backend/Dockerfile"
+context = "backend"
+
+[deploy]
+startCommand = "sh -c 'python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT'"
+healthcheckPath = "/login/"
+healthcheckTimeout = 100
+restartPolicyType = "on-failure"
