@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Barcha kitoblar" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "Barcha kitoblar" %}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
+    <i class="fas fa-university"></i> <span>{% trans "Bosh sahifa" %}</span>
+</a>
+<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link">
+    <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
+</a>
+<a href="{% url 'frontend_admin:muassasalar_list' %}" class="nav-link">
+    <i class="fas fa-building"></i> <span>{% trans "Muassasalar" %}</span>
+</a>
+<a href="{% url 'frontend_admin:statistics' %}" class="nav-link">
+    <i class="fas fa-chart-pie"></i> <span>{% trans "Statistika" %}</span>
+</a>
+<a href="{% url 'frontend_admin:system_logs' %}" class="nav-link">
+    <i class="fas fa-list-ul"></i> <span>{% trans "Tizim loglari" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-panel animate-fade" style="padding: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h3><i class="fas fa-book" style="color: var(--accent); margin-right: 10px;"></i> {% trans "Tizimdagi barcha kitoblar" %}</h3>
+    </div>
+    
+    <div class="table-container" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Muqova" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Kitob nomi" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Maktab" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Kategoriya" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Jami" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Mavjud" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "O'qilgan" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s;">
+                    <td style="padding: 10px 15px;">
+                        {% if book.cover %}
+                            <img src="{{ book.cover.url }}" alt="{{ book.title }}" style="width: 45px; height: 60px; object-fit: cover; border-radius: 6px;">
+                        {% else %}
+                            <div style="width: 45px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-book" style="color: var(--text-muted);"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px; font-weight: 600;">{{ book.title }}</td>
+                    <td style="padding: 15px; color: var(--text-muted);">{{ book.school.name|default:"-" }}</td>
+                    <td style="padding: 15px;">
+                        <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">
+                            {{ book.category.name|default:"-" }}
+                        </span>
+                    </td>
+                    <td style="padding: 15px;">{{ book.total_count }}</td>
+                    <td style="padding: 15px; color: #10b981;">{{ book.available_count }}</td>
+                    <td style="padding: 15px; color: var(--secondary);">{{ book.borrow_count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                        {% trans "Kitoblar topilmadi" %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

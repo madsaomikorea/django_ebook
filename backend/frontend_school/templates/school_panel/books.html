@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Kitoblar" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "Kitoblar ro'yxati" %}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
+    <i class="fas fa-chart-line"></i> <span>{% trans "Dashboard" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_issue' %}" class="nav-link">
+    <i class="fas fa-qrcode"></i> <span>{% trans "Kitob berish (QR)" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_receive' %}" class="nav-link">
+    <i class="fas fa-undo"></i> <span>{% trans "Kitob qabul qilish" %}</span>
+</a>
+<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
+    <i class="fas fa-users"></i> <span>{% trans "O'quvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
+    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:books_list' %}" class="nav-link active">
+    <i class="fas fa-book"></i> <span>{% trans "Kitoblar" %}</span>
+</a>
+<a href="{% url 'frontend_school:news_list' %}" class="nav-link">
+    <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-panel animate-fade">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h3><i class="fas fa-book" style="color: var(--accent);"></i> {% trans "Maktab kutubxonasi" %}</h3>
+        <a href="{% url 'frontend_school:book_add' %}" class="btn-primary" style="padding: 10px 20px; background: linear-gradient(135deg, var(--accent), #f59e0b); text-decoration: none;">
+            <i class="fas fa-plus"></i> {% trans "Yangi kitob" %}
+        </a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+        {% for book in books %}
+        <div class="glass-card animate-fade" style="padding: 20px; text-align: center; transition: transform 0.3s;">
+            {% if book.cover %}
+            <img src="{{ book.cover.url }}" alt="{{ book.title }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
+            {% else %}
+            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #78350f, #d97706); border-radius: 8px; position: relative; padding: 20px 15px; display: flex; flex-direction: column; justify-content: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; box-shadow: inset 5px 0 15px rgba(0,0,0,0.3);">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #fef3c7; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+                    {{ book.title|upper }}
+                </div>
+                <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.6rem; color: rgba(254,243,199,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                    {{ book.category.name|default:"Classic" }}
+                </div>
+                <div style="position: absolute; left: 8px; top: 5%; bottom: 5%; width: 2px; background: rgba(0,0,0,0.2); border-radius: 1px;"></div>
+            </div>
+            {% endif %}
+            <h4 style="margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ book.title }}</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">{% trans "Qolgan" %}: {{ book.available_count }}/{{ book.total_count }}</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="{% url 'frontend_school:book_edit' book.pk %}" style="color: var(--accent);"><i class="fas fa-edit"></i></a>
+                <a href="{% url 'frontend_school:book_delete' book.pk %}" style="color: #ef4444;"><i class="fas fa-trash"></i></a>
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">{% trans "Kitoblar topilmadi" %}</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

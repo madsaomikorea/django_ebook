@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Profil" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "Mening profilim" %}{% endblock %}
+
+{% block sidebar_nav %}
+{% if user.role == 'student' %}
+<a href="{% url 'frontend_user:library' %}" class="nav-link">
+    <i class="fas fa-book"></i> <span>{% trans "Kutubxona" %}</span>
+</a>
+<a href="{% url 'frontend_user:my_books' %}" class="nav-link">
+    <i class="fas fa-bookmark"></i> <span>{% trans "Mening kitoblarim" %}</span>
+</a>
+{% elif user.role == 'school_admin' %}
+<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
+    <i class="fas fa-th-large"></i> <span>{% trans "Dashboard" %}</span>
+</a>
+<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
+    <i class="fas fa-user-graduate"></i> <span>{% trans "O'quvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
+    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+</a>
+{% elif user.role == 'superuser' %}
+<a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
+    <i class="fas fa-university"></i> <span>{% trans "Bosh sahifa" %}</span>
+</a>
+<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link">
+    <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
+</a>
+{% endif %}
+
+<a href="{% url 'frontend_user:profile' %}" class="nav-link active">
+    <i class="fas fa-user"></i> <span>{% trans "Profil" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="glass-panel animate-fade" style="padding: 40px;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="width: 120px; height: 120px; background: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i class="fas fa-user" style="font-size: 4rem; color: white;"></i>
+            </div>
+            <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+            <p style="color: var(--text-muted);">
+                {{ user.get_role_display }} | 
+                {% if user.role == 'superuser' %}
+                    {% trans "Barcha maktablar" %}
+                {% else %}
+                    {{ user.school.name|default:_("Maktab biriktirilmagan") }}
+                {% endif %}
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div class="glass-card" style="padding: 20px;">
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px;">{% trans "Foydalanuvchi nomi" %}</p>
+                <p style="font-weight: 600;">{{ user.username }}</p>
+            </div>
+            {% if user.role == 'student' %}
+            <div class="glass-card" style="padding: 20px;">
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px;">{% trans "Sinf" %}</p>
+                <p style="font-weight: 600;">{{ user.grade|default:"-" }}</p>
+            </div>
+            {% endif %}
+            <div class="glass-card" style="padding: 20px;">
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px;">{% trans "ID raqam" %}</p>
+                <p style="font-weight: 600;">#{{ user.id|stringformat:"05d" }}</p>
+            </div>
+            <div class="glass-card" style="padding: 20px;">
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px;">{% trans "A'zo bo'lgan sana" %}</p>
+                <p style="font-weight: 600;">{{ user.date_joined|date:"d.m.Y" }}</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center;">
+            <a href="{% url 'frontend_user:profile_edit' %}" class="btn-primary" style="padding: 12px 40px; text-decoration: none;">{% trans "Ma'lumotlarni tahrirlash" %}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

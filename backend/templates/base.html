@@ -1,0 +1,105 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Kutibxona{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
+    <div class="layout-wrapper">
+        <aside class="sidebar glass-panel" id="sidebar">
+            <div class="sidebar-header" style="margin-bottom: 40px; text-align: center;">
+                <h2 class="gradient-text" style="font-size: 1.5rem; white-space: nowrap;">
+                    <i class="fas fa-book-open"></i> Online Kutibxona
+                </h2>
+            </div>
+            <nav class="sidebar-nav">
+                {% block sidebar_nav %}{% endblock %}
+                <div style="margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 15px; border-top: 1px solid var(--border);">
+                    <a href="{% url 'frontend_user:profile' %}" class="user-profile-link" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="user-profile glass-card" style="padding: 10px 15px; display: flex; align-items: center; gap: 12px; margin-top: 10px; transition: all 0.3s ease; cursor: pointer;">
+                            <i class="fas fa-user-circle" style="font-size: 2rem; color: var(--primary);"></i>
+                            <div>
+                                <p style="font-weight: 600; font-size: 0.9rem; margin: 0;">{{ user.username }}</p>
+                                <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">{{ user.get_role_display }}</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <style>
+                        .user-profile-link:hover .user-profile {
+                            background: rgba(255, 255, 255, 0.1);
+                            transform: translateY(-2px);
+                            border-color: var(--primary);
+                        }
+                        
+                        .custom-scrollbar::-webkit-scrollbar {
+                            width: 6px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-track {
+                            background: rgba(255, 255, 255, 0.02);
+                            border-radius: 10px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb {
+                            background: rgba(255, 255, 255, 0.1);
+                            border-radius: 10px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                            background: var(--primary);
+                        }
+                    </style>
+
+                    <form action="{% url 'set_language' %}" method="post" style="margin: 0; width: 100%;">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                        <select name="language" onchange="this.form.submit()" class="form-control" style="padding: 10px 12px; width: 100%; font-size: 0.9rem; background: var(--glass);">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% get_available_languages as LANGUAGES %}
+                            {% get_language_info_list for LANGUAGES as languages %}
+                            {% for language in languages %}
+                                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                    {{ language.name_local }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+
+                    <a href="{% url 'logout' %}" class="nav-link" style="color: #ef4444; margin-bottom: 0;">
+                        <i class="fas fa-sign-out-alt"></i> <span>{% trans "Chiqish" %}</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button class="mobile-header-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="gradient-text" style="margin: 0;">{% block page_title %}{% endblock %}</h1>
+                </div>
+            </header>
+
+            <div class="animate-fade">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

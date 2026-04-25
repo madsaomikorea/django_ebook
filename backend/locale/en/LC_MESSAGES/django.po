@@ -1,0 +1,319 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-25 10:00+0000\n"
+"PO-Revision-Date: 2024-04-25 10:00+0000\n"
+"Last-Translator: Auto\n"
+"Language-Team: en\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Kirish | Online Kutibxona"
+msgstr "Login | Online Library"
+
+msgid "Xush kelibsiz"
+msgstr "Welcome"
+
+msgid "Online kutibxonaga kirish"
+msgstr "Login to online library"
+
+msgid "Foydalanuvchi nomi"
+msgstr "Username"
+
+msgid "Parol"
+msgstr "Password"
+
+msgid "Kirish"
+msgstr "Login"
+
+msgid "Chiqish"
+msgstr "Logout"
+
+msgid "School Admin | Online Kutibxona"
+msgstr "School Admin | Online Library"
+
+msgid "Maktab boshqaruvi"
+msgstr "School Management"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Kitob berish (QR)"
+msgstr "Issue Book (QR)"
+
+msgid "Kitob qabul qilish"
+msgstr "Receive Book"
+
+msgid "O'quvchilar"
+msgstr "Students"
+
+msgid "O'qituvchilar"
+msgstr "Teachers"
+
+msgid "Kitoblar"
+msgstr "Books"
+
+msgid "Yangiliklar"
+msgstr "News"
+
+msgid "Jami kitoblar"
+msgstr "Total Books"
+
+msgid "O'qilayotgan kitoblar"
+msgstr "Issued Books"
+
+msgid "Tezkor amallar"
+msgstr "Quick Actions"
+
+msgid "Kitob berish"
+msgstr "Issue Book"
+
+msgid "Oxirgi amallar"
+msgstr "Recent Actions"
+
+msgid "Hozircha amallar mavjud emas"
+msgstr "No recent actions"
+
+msgid "Uzbek"
+msgstr "Uzbek"
+
+msgid "Russian"
+msgstr "Russian"
+
+msgid "English"
+msgstr "English"
+
+msgid "Super Admin | Online Kutibxona"
+msgstr "Super Admin | Online Library"
+
+msgid "Tizim boshqaruvi"
+msgstr "System Management"
+
+msgid "Bosh sahifa"
+msgstr "Home"
+
+msgid "Maktablar"
+msgstr "Schools"
+
+msgid "Muassasalar"
+msgstr "Organizations"
+
+msgid "Statistika"
+msgstr "Statistics"
+
+msgid "Tizim loglari"
+msgstr "System Logs"
+
+msgid "Faol o'qishda"
+msgstr "Active Loans"
+
+msgid "So'nggi qo'shilgan maktablar"
+msgstr "Recently Added Schools"
+
+msgid "Barchasini ko'rish"
+msgstr "View All"
+
+msgid "Maktab nomi"
+msgstr "School Name"
+
+msgid "Manzil"
+msgstr "Address"
+
+msgid "Kontakt"
+msgstr "Contact"
+
+msgid "Amallar"
+msgstr "Actions"
+
+msgid "Ko'rish"
+msgstr "View"
+
+msgid "Hozircha maktablar qo'shilmagan"
+msgstr "No schools added yet"
+
+msgid "Foydalanuvchilar"
+msgstr "Users"
+
+msgid "Barcha foydalanuvchilar"
+msgstr "All Users"
+
+msgid "Tizimdagi barcha foydalanuvchilar"
+msgstr "All System Users"
+
+msgid "Ism Familiya"
+msgstr "Full Name"
+
+msgid "Rol"
+msgstr "Role"
+
+msgid "Maktab"
+msgstr "School"
+
+msgid "Qo'shilgan sana"
+msgstr "Date Joined"
+
+msgid "Foydalanuvchilar topilmadi"
+msgstr "No users found"
+
+msgid "Barcha kitoblar"
+msgstr "All Books"
+
+msgid "Tizimdagi barcha kitoblar"
+msgstr "All System Books"
+
+msgid "Muqova"
+msgstr "Cover"
+
+msgid "Kitob nomi"
+msgstr "Book Title"
+
+msgid "Kategoriya"
+msgstr "Category"
+
+msgid "Jami"
+msgstr "Total"
+
+msgid "Mavjud"
+msgstr "Available"
+
+msgid "O'qilgan"
+msgstr "Borrowed"
+
+msgid "Kitoblar topilmadi"
+msgstr "No books found"
+
+msgid "Faol o'qishlar"
+msgstr "Active Loans"
+
+msgid "Hozirda o'qilayotgan kitoblar"
+msgstr "Books Currently Being Read"
+
+msgid "Foydalanuvchi"
+msgstr "User"
+
+msgid "Berilgan sana"
+msgstr "Issue Date"
+
+msgid "Hozirda faol o'qishlar mavjud emas"
+msgstr "No active loans"
+
+msgid "Kitob berish | Online Kutibxona"
+msgstr "Issue Book | Online Library"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Ism"
+msgstr "First Name"
+
+msgid "Familiya"
+msgstr "Last Name"
+
+msgid "Sinf"
+msgstr "Grade"
+
+msgid "Saqlash"
+msgstr "Save"
+
+msgid "Bekor qilish"
+msgstr "Cancel"
+
+msgid "Yangi o'qituvchi"
+msgstr "New Teacher"
+
+msgid "Yangi o'quvchi"
+msgstr "New Student"
+
+msgid "Yangi kitob"
+msgstr "New Book"
+
+msgid "Yangilik qo'shish"
+msgstr "Add News"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Ism (F.I.SH)"
+msgstr "Full Name"
+
+msgid "Mutaxassislik"
+msgstr "Specialty"
+
+msgid "O'qituvchi"
+msgstr "Teacher"
+
+msgid "O'qituvchilar topilmadi"
+msgstr "No teachers found"
+
+msgid "Maktab o'qituvchilari"
+msgstr "School Teachers"
+
+msgid "Maktab o'quvchilari"
+msgstr "School Students"
+
+msgid "O'quvchilar topilmadi"
+msgstr "No students found"
+
+msgid "Yangi o'qituvchi qo'shish"
+msgstr "Add New Teacher"
+
+msgid "Yangi o'quvchi qo'shish"
+msgstr "Add New Student"
+
+msgid "O'qituvchilar ro'yxati"
+msgstr "Teachers List"
+
+msgid "O'quvchilar ro'yxati"
+msgstr "Students List"
+
+msgid "Orqaga qaytish"
+msgstr "Back"
+
+msgid "Muvaffaqiyatli!"
+msgstr "Success!"
+
+msgid "Xatolik!"
+msgstr "Error!"
+
+msgid "Tahrirlash"
+msgstr "Edit"
+
+msgid "O'chirish"
+msgstr "Delete"
+
+msgid "Sahifa topilmadi"
+msgstr "Page Not Found"
+
+msgid "Xatolik 404"
+msgstr "Error 404"
+
+msgid "Afsuski, bunday sahifa mavjud emas"
+msgstr "Sorry, this page does not exist"
+
+msgid ""
+"Siz qidirayotgan sahifa o'chirilgan, nomi o'zgartirilgan yoki vaqtincha "
+"mavjud emas bo'lishi mumkin."
+msgstr ""
+"The page you are looking for might have been removed, had its name changed, "
+"or is temporarily unavailable."
+
+msgid "Bosh sahifaga qaytish"
+msgstr "Return to Home"
+
+msgid "Tizimda xatolik"
+msgstr "System Error"
+
+msgid "Xatolik 500"
+msgstr "Error 500"
+
+msgid "Tizimda kutilmagan xatolik yuz berdi"
+msgstr "An unexpected error occurred in the system"
+
+msgid ""
+"Biz bu haqda xabar topdik va tez orada muammoni bartaraf etamiz. Iltimos, "
+"birozdan so'ng qayta urinib ko'ring."
+msgstr "We've been notified and will fix it soon. Please try again later."

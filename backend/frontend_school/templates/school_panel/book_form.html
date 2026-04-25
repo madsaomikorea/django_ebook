@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }} | Online Kutibxona{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="glass-panel animate-fade" style="padding: 40px;">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                {% for field in form %}
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted);">{{ field.label }}</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="flex-grow: 1;" id="cover-input-wrapper">
+                            {{ field }}
+                        </div>
+                        {% if field.name == 'cover' %}
+                        <button type="button" class="btn-primary" onclick="openCamera(this)" style="white-space: nowrap; padding: 12px 20px; background: var(--secondary);">
+                            <i class="fas fa-camera"></i> {% trans "Kamera" %}
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% if field.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <script>
+                function openCamera(btn) {
+                    const wrapper = document.getElementById('cover-input-wrapper');
+                    const input = wrapper.querySelector('input[type="file"]');
+                    if (input) {
+                        // For mobile: set capture attribute to environment (rear camera)
+                        input.setAttribute('capture', 'environment');
+                        input.setAttribute('accept', 'image/*');
+                        
+                        // Set a listener to remove capture after selection so regular "Choose File" still works for gallery
+                        input.onchange = function() {
+                            if (this.files && this.files[0]) {
+                                btn.innerHTML = '<i class="fas fa-check"></i> ' + '{% trans "Rasm olindi" %}';
+                                btn.style.background = '#10b981';
+                            }
+                            this.removeAttribute('capture');
+                        };
+                        
+                        input.click();
+                    }
+                }
+            </script>
+            
+            <div style="margin-top: 40px; display: flex; gap: 20px;">
+                <button type="submit" class="btn-primary" style="flex-grow: 1; padding: 15px;">{% trans "Saqlash" %}</button>
+                <a href="{% url 'frontend_school:books_list' %}" class="btn-primary" style="flex-grow: 1; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; text-decoration: none;">{% trans "Bekor qilish" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<datalist id="category-list">
+    {% for category in form.categories %}
+    <option value="{{ category.name }}">
+    {% endfor %}
+</datalist>
+{% endblock %}

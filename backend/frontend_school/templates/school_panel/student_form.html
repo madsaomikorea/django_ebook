@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "O'quvchi" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="glass-panel animate-fade" style="padding: 40px;">
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                {% for field in form %}
+                <div class="form-group {% if field.name == 'password' %}full-width{% endif %}" style="{% if field.name == 'password' %}grid-column: 1 / -1;{% endif %}">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted);">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.name == 'password' and form.instance.pk %}
+                    <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 5px;">{% trans "Parolni o'zgartirmoqchi bo'lsangizgina to'ldiring." %}</p>
+                    {% endif %}
+                    {% if field.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 40px; display: flex; gap: 20px;">
+                <button type="submit" class="btn-primary" style="flex-grow: 1; padding: 15px;">{% trans "Saqlash" %}</button>
+                <a href="{% url 'frontend_school:students_list' %}" class="btn-primary" style="flex-grow: 1; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; text-decoration: none;">{% trans "Bekor qilish" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

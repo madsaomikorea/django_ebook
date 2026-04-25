@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Kitob qabul qilish | Online Kutibxona" %}{% endblock %}
+{% block page_title %}{% trans "Kitob qabul qilish" %}{% endblock %}
+
+{% block extra_head %}
+<script src="https://unpkg.com/html5-qrcode"></script>
+<style>
+    #reader {
+        width: 100%;
+        border-radius: 20px;
+        overflow: hidden;
+        border: none !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    #reader__dashboard_section_csr button {
+        background: var(--secondary) !important;
+        color: white !important;
+        border: none !important;
+        padding: 12px 24px !important;
+        border-radius: 12px !important;
+        cursor: pointer !important;
+        font-weight: 600 !important;
+        transition: 0.3s !important;
+    }
+    #reader__dashboard_section_csr button:hover {
+        filter: brightness(1.2);
+        transform: translateY(-2px);
+    }
+    
+    .scanner-pulse {
+        position: relative;
+    }
+    .scanner-pulse::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 2px solid var(--secondary);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        opacity: 0;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.5; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
+    <i class="fas fa-chart-line"></i> <span>{% trans "Dashboard" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_issue' %}" class="nav-link">
+    <i class="fas fa-qrcode"></i> <span>{% trans "Kitob berish (QR)" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_receive' %}" class="nav-link active">
+    <i class="fas fa-undo"></i> <span>{% trans "Kitob qabul qilish" %}</span>
+</a>
+<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
+    <i class="fas fa-users"></i> <span>{% trans "O'quvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
+    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:books_list' %}" class="nav-link">
+    <i class="fas fa-book"></i> <span>{% trans "Kitoblar" %}</span>
+</a>
+<a href="{% url 'frontend_school:news_list' %}" class="nav-link">
+    <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="glass-panel animate-fade" style="padding: 50px; text-align: center;">
+        <div style="margin-bottom: 30px;">
+            <div style="width: 100px; height: 100px; background: rgba(168, 85, 247, 0.1); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i class="fas fa-undo" style="font-size: 3rem; color: var(--secondary);"></i>
+            </div>
+            <h2 style="margin-bottom: 10px; font-size: 1.8rem;">{% trans "Kitob qabul qilish" %}</h2>
+            <p style="color: var(--text-muted);">{% trans "Kitobni qaytarish uchun o'quvchi QR-kodini skanerlang." %}</p>
+        </div>
+        
+        <div id="reader-container" style="display: none; margin-bottom: 30px;">
+            <div id="reader"></div>
+        </div>
+
+        <div id="scanner-placeholder" class="glass-card" style="width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; border: 2px dashed rgba(255,255,255,0.1); margin-bottom: 30px; position: relative; overflow: hidden;">
+            <div style="text-align: center; z-index: 1;">
+                <div class="scanner-pulse" style="margin-bottom: 25px;">
+                    <i class="fas fa-camera" style="font-size: 3rem; color: var(--text-muted); opacity: 0.5;"></i>
+                </div>
+                <p style="color: var(--text-muted); font-weight: 500;">{% trans "Kamera faollashtirilmagan" %}</p>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.3); margin-top: 10px;">{% trans "Skanerlashni boshlash uchun quyidagi tugmani bosing" %}</p>
+            </div>
+            <!-- Decorative corner lines -->
+            <div style="position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-top: 2px solid var(--secondary); border-left: 2px solid var(--secondary); border-top-left-radius: 10px;"></div>
+            <div style="position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-top: 2px solid var(--secondary); border-right: 2px solid var(--secondary); border-top-right-radius: 10px;"></div>
+            <div style="position: absolute; bottom: 20px; left: 20px; width: 40px; height: 40px; border-bottom: 2px solid var(--secondary); border-left: 2px solid var(--secondary); border-bottom-left-radius: 10px;"></div>
+            <div style="position: absolute; bottom: 20px; right: 20px; width: 40px; height: 40px; border-bottom: 2px solid var(--secondary); border-right: 2px solid var(--secondary); border-bottom-right-radius: 10px;"></div>
+        </div>
+
+        <div id="result-message" class="glass-card" style="display: none; padding: 25px; margin-bottom: 30px; border-left: 6px solid var(--secondary); text-align: left; background: rgba(168, 85, 247, 0.05);">
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div id="res-icon" style="width: 40px; height: 40px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-check" style="color: white;"></i>
+                </div>
+                <div>
+                    <h4 id="res-status" style="color: var(--secondary); margin-bottom: 5px; font-size: 1.1rem;">{% trans "Muvaffaqiyatli!" %}</h4>
+                    <p id="res-text" style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;"></p>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button id="start-btn" class="btn-primary" style="padding: 15px 40px; font-size: 1rem; background: linear-gradient(135deg, var(--secondary), #7c3aed);" onclick="startScanner()">
+                <i class="fas fa-video"></i> &nbsp; {% trans "Kamerani yoqish" %}
+            </button>
+            <button class="btn-primary" style="padding: 15px 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;" onclick="manualEntry()">
+                <i class="fas fa-keyboard"></i>
+            </button>
+        </div>
+        
+        <script>
+            function manualEntry() {
+                const token = prompt("{% trans 'QR-kod ostidagi tokenni kiriting:' %}");
+                if (token && token.trim().length > 0) {
+                    processToken(token.trim());
+                }
+            }
+        </script>
+        
+        <div style="margin-top: 30px;">
+            <a href="{% url 'frontend_school:dashboard' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+                <i class="fas fa-arrow-left"></i> {% trans "Orqaga qaytish" %}
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const html5QrCode = new Html5Qrcode("reader");
+    const placeholder = document.getElementById('scanner-placeholder');
+    const readerContainer = document.getElementById('reader-container');
+    const resultMsg = document.getElementById('result-message');
+    const resStatus = document.getElementById('res-status');
+    const resText = document.getElementById('res-text');
+    const resIcon = document.getElementById('res-icon');
+    const startBtn = document.getElementById('start-btn');
+
+    function startScanner() {
+        placeholder.style.display = 'none';
+        readerContainer.style.display = 'block';
+        resultMsg.style.display = 'none';
+        startBtn.disabled = true;
+        startBtn.style.opacity = '0.5';
+
+        const config = { fps: 15, qrbox: { width: 250, height: 250 } };
+
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+        .catch(err => {
+            alert("Kameraga ruxsat berilmadi yoki kamera topilmadi.");
+            placeholder.style.display = 'flex';
+            readerContainer.style.display = 'none';
+            startBtn.disabled = false;
+            startBtn.style.opacity = '1';
+        });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        html5QrCode.stop().then(() => {
+            readerContainer.style.display = 'none';
+            placeholder.style.display = 'flex';
+            processToken(decodedText);
+        });
+    }
+
+    function processToken(token) {
+        fetch("{% url 'frontend_school:process_receive_qr' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: token })
+        })
+        .then(response => response.json())
+        .then(data => {
+            resultMsg.style.display = 'block';
+            startBtn.disabled = false;
+            startBtn.style.opacity = '1';
+            
+            if (data.status === 'success') {
+                resStatus.innerText = "Muvaffaqiyatli!";
+                resStatus.style.color = "var(--secondary)";
+                resultMsg.style.borderLeftColor = "var(--secondary)";
+                resultMsg.style.background = "rgba(168, 85, 247, 0.05)";
+                resIcon.style.background = "var(--secondary)";
+                resIcon.innerHTML = '<i class="fas fa-check" style="color: white;"></i>';
+                resText.innerHTML = `<strong>${data.message}</strong><br><span style="opacity: 0.8">O'quvchi: ${data.student}</span>`;
+            } else {
+                resStatus.innerText = "Xatolik!";
+                resStatus.style.color = "#ef4444";
+                resultMsg.style.borderLeftColor = "#ef4444";
+                resultMsg.style.background = "rgba(239, 68, 68, 0.05)";
+                resIcon.style.background = "#ef4444";
+                resIcon.innerHTML = '<i class="fas fa-times" style="color: white;"></i>';
+                resText.innerText = data.message;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            startBtn.disabled = false;
+            startBtn.style.opacity = '1';
+            alert("Tizimda xatolik yuz berdi");
+        });
+    }
+</script>
+{% endblock %}

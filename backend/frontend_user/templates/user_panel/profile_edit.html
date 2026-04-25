@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Profilni tahrirlash" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "Ma'lumotlarni tahrirlash" %}{% endblock %}
+
+{% block sidebar_nav %}
+{% if user.role == 'student' %}
+<a href="{% url 'frontend_user:library' %}" class="nav-link">
+    <i class="fas fa-book"></i> <span>{% trans "Kutubxona" %}</span>
+</a>
+<a href="{% url 'frontend_user:my_books' %}" class="nav-link">
+    <i class="fas fa-bookmark"></i> <span>{% trans "Mening kitoblarim" %}</span>
+</a>
+{% elif user.role == 'school_admin' %}
+<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
+    <i class="fas fa-th-large"></i> <span>{% trans "Dashboard" %}</span>
+</a>
+<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
+    <i class="fas fa-user-graduate"></i> <span>{% trans "O'quvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
+    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+</a>
+{% elif user.role == 'superuser' %}
+<a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
+    <i class="fas fa-university"></i> <span>{% trans "Bosh sahifa" %}</span>
+</a>
+<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link">
+    <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
+</a>
+{% endif %}
+
+<a href="{% url 'frontend_user:profile' %}" class="nav-link active">
+    <i class="fas fa-user"></i> <span>{% trans "Profil" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="glass-panel animate-fade" style="padding: 40px;">
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted);">{% trans "Ism" %}</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted);">{% trans "Familiya" %}</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 20px;">
+                <button type="submit" class="btn-primary" style="flex-grow: 1; padding: 15px;">{% trans "Saqlash" %}</button>
+                <a href="{% url 'frontend_user:profile' %}" class="btn-primary" style="flex-grow: 1; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; text-decoration: none;">{% trans "Bekor qilish" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

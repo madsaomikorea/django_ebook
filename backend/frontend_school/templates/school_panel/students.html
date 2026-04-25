@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "O'quvchilar" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "O'quvchilar ro'yxati" %}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
+    <i class="fas fa-chart-line"></i> <span>{% trans "Dashboard" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_issue' %}" class="nav-link">
+    <i class="fas fa-qrcode"></i> <span>{% trans "Kitob berish (QR)" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_receive' %}" class="nav-link">
+    <i class="fas fa-undo"></i> <span>{% trans "Kitob qabul qilish" %}</span>
+</a>
+<a href="{% url 'frontend_school:students_list' %}" class="nav-link active">
+    <i class="fas fa-users"></i> <span>{% trans "O'quvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
+    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:books_list' %}" class="nav-link">
+    <i class="fas fa-book"></i> <span>{% trans "Kitoblar" %}</span>
+</a>
+<a href="{% url 'frontend_school:news_list' %}" class="nav-link">
+    <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-panel animate-fade">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap;">
+        <h3 style="margin: 0;"><i class="fas fa-users" style="color: var(--primary);"></i> {% trans "Maktab o'quvchilari" %}</h3>
+        
+        <div style="display: flex; gap: 15px; flex-grow: 1; max-width: 500px;">
+            <form method="GET" style="display: flex; flex-grow: 1; position: relative;">
+                <input type="text" name="q" value="{{ query|default:'' }}" placeholder="{% trans 'Ism, login yoki sinf bo\'yicha qidirish...' %}" 
+                       style="width: 100%; padding: 12px 20px 12px 45px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; transition: 0.3s;">
+                <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            </form>
+            <a href="{% url 'frontend_school:student_add' %}" class="btn-primary" style="padding: 12px 20px; text-decoration: none; white-space: nowrap;">
+                <i class="fas fa-plus"></i> {% trans "Yangi o'quvchi" %}
+            </a>
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <th style="padding: 15px;">{% trans "Login" %}</th>
+                    <th style="padding: 15px;">{% trans "Ism (F.I.SH)" %}</th>
+                    <th style="padding: 15px;">{% trans "Sinf" %}</th>
+                    <th style="padding: 15px;">{% trans "Amallar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 15px;">{{ student.username }}</td>
+                    <td style="padding: 15px;">{{ student.first_name }} {{ student.last_name }}</td>
+                    <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{{ student.grade }}</span></td>
+                    <td style="padding: 15px;">
+                        <a href="{% url 'frontend_school:student_edit' student.pk %}" style="color: var(--primary); margin-right: 15px;"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'frontend_school:student_delete' student.pk %}" style="color: #ef4444;"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 40px; text-align: center; color: var(--text-muted);">{% trans "O'quvchilar topilmadi" %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

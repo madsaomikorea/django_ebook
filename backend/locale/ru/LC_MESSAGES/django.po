@@ -1,0 +1,319 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-25 10:00+0000\n"
+"PO-Revision-Date: 2024-04-25 10:00+0000\n"
+"Last-Translator: Auto\n"
+"Language-Team: ru\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Kirish | Online Kutibxona"
+msgstr "Вход | Онлайн Библиотека"
+
+msgid "Xush kelibsiz"
+msgstr "Добро пожаловать"
+
+msgid "Online kutibxonaga kirish"
+msgstr "Вход в онлайн-библиотеку"
+
+msgid "Foydalanuvchi nomi"
+msgstr "Имя пользователя"
+
+msgid "Parol"
+msgstr "Пароль"
+
+msgid "Kirish"
+msgstr "Войти"
+
+msgid "Chiqish"
+msgstr "Выйти"
+
+msgid "School Admin | Online Kutibxona"
+msgstr "Админ Школы | Онлайн Библиотека"
+
+msgid "Maktab boshqaruvi"
+msgstr "Управление школой"
+
+msgid "Dashboard"
+msgstr "Главная"
+
+msgid "Kitob berish (QR)"
+msgstr "Выдать книгу (QR)"
+
+msgid "Kitob qabul qilish"
+msgstr "Принять книгу"
+
+msgid "O'quvchilar"
+msgstr "Ученики"
+
+msgid "O'qituvchilar"
+msgstr "Учителя"
+
+msgid "Kitoblar"
+msgstr "Книги"
+
+msgid "Yangiliklar"
+msgstr "Новости"
+
+msgid "Jami kitoblar"
+msgstr "Всего книг"
+
+msgid "O'qilayotgan kitoblar"
+msgstr "Выданные книги"
+
+msgid "Tezkor amallar"
+msgstr "Быстрые действия"
+
+msgid "Kitob berish"
+msgstr "Выдать книгу"
+
+msgid "Oxirgi amallar"
+msgstr "Последние действия"
+
+msgid "Hozircha amallar mavjud emas"
+msgstr "Пока нет действий"
+
+msgid "Uzbek"
+msgstr "Узбекский"
+
+msgid "Russian"
+msgstr "Русский"
+
+msgid "English"
+msgstr "Английский"
+
+msgid "Super Admin | Online Kutibxona"
+msgstr "Супер Админ | Онлайн Библиотека"
+
+msgid "Tizim boshqaruvi"
+msgstr "Управление системой"
+
+msgid "Bosh sahifa"
+msgstr "Главная страница"
+
+msgid "Maktablar"
+msgstr "Школы"
+
+msgid "Muassasalar"
+msgstr "Учреждения"
+
+msgid "Statistika"
+msgstr "Статистика"
+
+msgid "Tizim loglari"
+msgstr "Системные логи"
+
+msgid "Faol o'qishda"
+msgstr "В активном чтении"
+
+msgid "So'nggi qo'shilgan maktablar"
+msgstr "Последние добавленные школы"
+
+msgid "Barchasini ko'rish"
+msgstr "Посмотреть все"
+
+msgid "Maktab nomi"
+msgstr "Название школы"
+
+msgid "Manzil"
+msgstr "Адрес"
+
+msgid "Kontakt"
+msgstr "Контакт"
+
+msgid "Amallar"
+msgstr "Действия"
+
+msgid "Ko'rish"
+msgstr "Просмотр"
+
+msgid "Hozircha maktablar qo'shilmagan"
+msgstr "Пока нет добавленных школ"
+
+msgid "Foydalanuvchilar"
+msgstr "Пользователи"
+
+msgid "Barcha foydalanuvchilar"
+msgstr "Все пользователи"
+
+msgid "Tizimdagi barcha foydalanuvchilar"
+msgstr "Все пользователи системы"
+
+msgid "Ism Familiya"
+msgstr "Имя Фамилия"
+
+msgid "Rol"
+msgstr "Роль"
+
+msgid "Maktab"
+msgstr "Школа"
+
+msgid "Qo'shilgan sana"
+msgstr "Дата регистрации"
+
+msgid "Foydalanuvchilar topilmadi"
+msgstr "Пользователи не найдены"
+
+msgid "Barcha kitoblar"
+msgstr "Все книги"
+
+msgid "Tizimdagi barcha kitoblar"
+msgstr "Все книги системы"
+
+msgid "Muqova"
+msgstr "Обложка"
+
+msgid "Kitob nomi"
+msgstr "Название книги"
+
+msgid "Kategoriya"
+msgstr "Категория"
+
+msgid "Jami"
+msgstr "Всего"
+
+msgid "Mavjud"
+msgstr "Доступно"
+
+msgid "O'qilgan"
+msgstr "Прочитано"
+
+msgid "Kitoblar topilmadi"
+msgstr "Книги не найдены"
+
+msgid "Faol o'qishlar"
+msgstr "Активные чтения"
+
+msgid "Hozirda o'qilayotgan kitoblar"
+msgstr "Книги в активном чтении"
+
+msgid "Foydalanuvchi"
+msgstr "Пользователь"
+
+msgid "Berilgan sana"
+msgstr "Дата выдачи"
+
+msgid "Hozirda faol o'qishlar mavjud emas"
+msgstr "Нет активных чтений"
+
+msgid "Kitob berish | Online Kutibxona"
+msgstr "Выдача книги | Онлайн Библиотека"
+
+msgid "Username"
+msgstr "Логин"
+
+msgid "Ism"
+msgstr "Имя"
+
+msgid "Familiya"
+msgstr "Фамилия"
+
+msgid "Sinf"
+msgstr "Класс"
+
+msgid "Saqlash"
+msgstr "Сохранить"
+
+msgid "Bekor qilish"
+msgstr "Отмена"
+
+msgid "Yangi o'qituvchi"
+msgstr "Новый учитель"
+
+msgid "Yangi o'quvchi"
+msgstr "Новый ученик"
+
+msgid "Yangi kitob"
+msgstr "Новая книга"
+
+msgid "Yangilik qo'shish"
+msgstr "Добавить новость"
+
+msgid "Login"
+msgstr "Логин"
+
+msgid "Ism (F.I.SH)"
+msgstr "Имя (Ф.И.О)"
+
+msgid "Mutaxassislik"
+msgstr "Специальность"
+
+msgid "O'qituvchi"
+msgstr "Учитель"
+
+msgid "O'qituvchilar topilmadi"
+msgstr "Учителя не найдены"
+
+msgid "Maktab o'qituvchilari"
+msgstr "Учителя школы"
+
+msgid "Maktab o'quvchilari"
+msgstr "Ученики школы"
+
+msgid "O'quvchilar topilmadi"
+msgstr "Ученики не найдены"
+
+msgid "Yangi o'qituvchi qo'shish"
+msgstr "Добавить нового учителя"
+
+msgid "Yangi o'quvchi qo'shish"
+msgstr "Добавить нового ученика"
+
+msgid "O'qituvchilar ro'yxati"
+msgstr "Список учителей"
+
+msgid "O'quvchilar ro'yxati"
+msgstr "Список учеников"
+
+msgid "Orqaga qaytish"
+msgstr "Назад"
+
+msgid "Muvaffaqiyatli!"
+msgstr "Успешно!"
+
+msgid "Xatolik!"
+msgstr "Ошибка!"
+
+msgid "Tahrirlash"
+msgstr "Редактировать"
+
+msgid "O'chirish"
+msgstr "Удалить"
+
+msgid "Sahifa topilmadi"
+msgstr "Страница не найдена"
+
+msgid "Xatolik 404"
+msgstr "Ошибка 404"
+
+msgid "Afsuski, bunday sahifa mavjud emas"
+msgstr "К сожалению, такой страницы не существует"
+
+msgid ""
+"Siz qidirayotgan sahifa o'chirilgan, nomi o'zgartirilgan yoki vaqtincha "
+"mavjud emas bo'lishi mumkin."
+msgstr ""
+"Возможно, страница была удалена, переименована или временно недоступна."
+
+msgid "Bosh sahifaga qaytish"
+msgstr "Вернуться на главную"
+
+msgid "Tizimda xatolik"
+msgstr "Ошибка системы"
+
+msgid "Xatolik 500"
+msgstr "Ошибка 500"
+
+msgid "Tizimda kutilmagan xatolik yuz berdi"
+msgstr "В системе произошла непредвиденная ошибка"
+
+msgid ""
+"Biz bu haqda xabar topdik va tez orada muammoni bartaraf etamiz. Iltimos, "
+"birozdan so'ng qayta urinib ko'ring."
+msgstr ""
+"Мы уже знаем об этом и скоро всё исправим. Пожалуйста, попробуйте позже."

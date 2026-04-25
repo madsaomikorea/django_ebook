@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }} | Online Kutibxona{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
+    <i class="fas fa-university"></i> <span>{% trans "Bosh sahifa" %}</span>
+</a>
+<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link">
+    <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
+</a>
+<a href="{% url 'frontend_admin:muassasalar_list' %}" class="nav-link active">
+    <i class="fas fa-building"></i> <span>{% trans "Muassasalar" %}</span>
+</a>
+<a href="{% url 'frontend_admin:statistics' %}" class="nav-link">
+    <i class="fas fa-chart-pie"></i> <span>{% trans "Statistika" %}</span>
+</a>
+<a href="{% url 'frontend_admin:system_logs' %}" class="nav-link">
+    <i class="fas fa-list-ul"></i> <span>{% trans "Tizim loglari" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="glass-panel animate-fade" style="padding: 40px;">
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                {% for field in form %}
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted);">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 40px; display: flex; gap: 20px;">
+                <button type="submit" class="btn-primary" style="flex-grow: 1; padding: 15px;">{% trans "Saqlash" %}</button>
+                <a href="{% url 'frontend_admin:muassasalar_list' %}" class="btn-primary" style="flex-grow: 1; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center; text-decoration: none;">{% trans "Bekor qilish" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

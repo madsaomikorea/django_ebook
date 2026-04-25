@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Maktablar" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "Maktablar boshqaruvi" %}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
+    <i class="fas fa-university"></i> <span>{% trans "Bosh sahifa" %}</span>
+</a>
+<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link active">
+    <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
+</a>
+<a href="{% url 'frontend_admin:muassasalar_list' %}" class="nav-link">
+    <i class="fas fa-building"></i> <span>{% trans "Muassasalar" %}</span>
+</a>
+<a href="{% url 'frontend_admin:statistics' %}" class="nav-link">
+    <i class="fas fa-chart-pie"></i> <span>{% trans "Statistika" %}</span>
+</a>
+<a href="{% url 'frontend_admin:system_logs' %}" class="nav-link">
+    <i class="fas fa-list-ul"></i> <span>{% trans "Tizim loglari" %}</span>
+</a>
+<a href="{% url 'frontend_admin:all_users_list' %}" class="nav-link">
+    <i class="fas fa-users"></i> <span>{% trans "Foydalanuvchilar" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-panel animate-fade">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h3><i class="fas fa-school" style="color: var(--primary);"></i> {% trans "Tizimdagi barcha maktablar" %}</h3>
+        <a href="{% url 'frontend_admin:school_add' %}" class="btn-primary" style="padding: 10px 20px; text-decoration: none;">
+            <i class="fas fa-plus"></i> {% trans "Yangi maktab qo'shish" %}
+        </a>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <th style="padding: 15px;">ID</th>
+                    <th style="padding: 15px;">{% trans "Maktab nomi" %}</th>
+                    <th style="padding: 15px;">{% trans "Manzil" %}</th>
+                    <th style="padding: 15px;">{% trans "Foydalanuvchilar" %}</th>
+                    <th style="padding: 15px;">{% trans "Amallar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for school in schools %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 15px;">#{{ school.id|stringformat:"03d" }}</td>
+                    <td style="padding: 15px; font-weight: 600;">{{ school.name }}</td>
+                    <td style="padding: 15px;">{{ school.address|truncatechars:30 }}</td>
+                    <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{{ school.student_count|default:"0" }}</span></td>
+                    <td style="padding: 15px;">
+                        <a href="{% url 'frontend_admin:school_detail' school.pk %}" style="color: var(--primary); margin-right: 15px;"><i class="fas fa-eye"></i></a>
+                        <a href="{% url 'frontend_admin:school_edit' school.pk %}" style="color: var(--accent); margin-right: 15px;"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'frontend_admin:school_delete' school.pk %}" style="color: #ef4444;"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">{% trans "Maktablar topilmadi" %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

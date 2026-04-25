@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Yangiliklar" %} | Online Kutibxona{% endblock %}
+{% block page_title %}{% trans "Maktab yangiliklari" %}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
+    <i class="fas fa-chart-line"></i> <span>{% trans "Dashboard" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_issue' %}" class="nav-link">
+    <i class="fas fa-qrcode"></i> <span>{% trans "Kitob berish (QR)" %}</span>
+</a>
+<a href="{% url 'frontend_school:qr_receive' %}" class="nav-link">
+    <i class="fas fa-undo"></i> <span>{% trans "Kitob qabul qilish" %}</span>
+</a>
+<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
+    <i class="fas fa-users"></i> <span>{% trans "O'quvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
+    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+</a>
+<a href="{% url 'frontend_school:books_list' %}" class="nav-link">
+    <i class="fas fa-book"></i> <span>{% trans "Kitoblar" %}</span>
+</a>
+<a href="{% url 'frontend_school:news_list' %}" class="nav-link active">
+    <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-panel animate-fade">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h3><i class="fas fa-newspaper" style="color: #10b981;"></i> {% trans "So'nggi yangiliklar" %}</h3>
+        <a href="{% url 'frontend_school:news_add' %}" class="btn-primary" style="padding: 10px 20px; background: linear-gradient(135deg, #10b981, #059669); text-decoration: none;">
+            <i class="fas fa-plus"></i> {% trans "Yangilik qo'shish" %}
+        </a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        {% for item in news %}
+        <div class="glass-card animate-fade" style="padding: 25px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <h4 style="color: var(--primary);">{{ item.title }}</h4>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">{{ item.created_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            <p style="color: var(--text-muted); line-height: 1.6;">{{ item.body|truncatewords:30 }}</p>
+            <div style="margin-top: 15px; display: flex; gap: 15px; justify-content: flex-end;">
+                <a href="{% url 'frontend_school:news_edit' item.pk %}" style="color: #10b981; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-edit"></i> {% trans "Tahrirlash" %}</a>
+                <a href="{% url 'frontend_school:news_delete' item.pk %}" style="color: #ef4444; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-trash"></i> {% trans "O'chirish" %}</a>
+            </div>
+        </div>
+        {% empty %}
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">{% trans "Yangiliklar mavjud emas" %}</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
