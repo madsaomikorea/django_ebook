@@ -43,49 +43,33 @@ class Command(BaseCommand):
 
         self.stdout.write("Starting Karakalpakstan data seeding...")
 
-        # 1. Create Districts (Karakalpakstan)
+        # 1. Create Districts
         districts_names = [
             "Nukus shahri", "Amudaryo tumani", "Beruniy tumani", "Chimboy tumani", 
-            "Ellikqala tumani", "Kegeyli tumani", "Mo'ynoq tumani", "Nukus tumani", 
-            "Qonliko'l tumani", "Qorao'zak tumani", "Qo'ng'irot tumani", "Shumanay tumani", 
-            "Taxtako'pir tumani", "To'rtko'l tumani", "Xo'jayli tumani", "Taxiatosh tumani", 
-            "Bo'zatov tumani"
+            "Ellikqala tumani", "Kegeyli tumani", "Mo'ynoq tumani", "Nukus tumani"
         ]
         districts = []
         for name in districts_names:
             d, _ = District.objects.get_or_create(name=name)
             districts.append(d)
 
-        # 2. Create Subjects
         subjects_names = ["Matematika", "Fizika", "Kimyo", "Informatika", "O'zbek tili", "Ingliz tili"]
-        subjects = []
-        for name in subjects_names:
-            s, _ = Subject.objects.get_or_create(name=name)
-            subjects.append(s)
+        subjects = [Subject.objects.get_or_create(name=name)[0] for name in subjects_names]
 
-        # 3. Create Categories
         categories_names = ["Badiiy adabiyot", "Ilmiy-ommabop", "Darslik", "Tarix"]
-        categories = []
-        for name in categories_names:
-            c, _ = Category.objects.get_or_create(name=name)
-            categories.append(c)
+        categories = [Category.objects.get_or_create(name=name)[0] for name in categories_names]
 
-        # 4. Create Schools and Users
         first_names = ["Anvar", "Baxit", "Daulet", "Erkin", "Farhod", "Gulmira", "Inju", "Jalgas"]
         last_names = ["Kidirbaev", "Embergenov", "Dauletov", "Saparov", "Ametov"]
-
         book_titles = ["O'tkan kunlar", "Mehrobdan chayon", "Shum bola", "Yulduzli tunlar", "Kichik shahzoda"]
 
         all_books_to_create = []
 
-        # Reduce number of districts/schools for automatic seed to prevent timeout
-        # We'll seed 5 districts for the automatic run
-        active_districts = districts[:8] 
-
-        for d_idx, district in enumerate(active_districts):
+        for d_idx, district in enumerate(districts):
+            # 1-2 schools per district
             num_schools = 1 if d_idx > 0 else 2 
-            for i in range(1, num_schools + 1): 
-                school_name = f"{district.name.replace(' shahri', '').replace(' tumani', '')} {i}-sonli maktab"
+            for s_idx in range(1, num_schools + 1): 
+                school_name = f"{district.name.replace(' shahri', '').replace(' tumani', '')} {s_idx}-sonli maktab"
                 school = School.objects.create(
                     name=school_name,
                     address=f"{district.name}, Markaz",
@@ -93,8 +77,9 @@ class Command(BaseCommand):
                     district=district
                 )
                 
+                # Predictable usernames: admin_1_1, admin_1_2, etc. (1-indexed for clarity)
                 # School Admin
-                admin_username = f"admin_{district.id}_{i}"
+                admin_username = f"admin_{d_idx}_{s_idx}"
                 if not CustomUser.objects.filter(username=admin_username).exists():
                     CustomUser.objects.create_user(
                         username=admin_username, 
@@ -105,9 +90,9 @@ class Command(BaseCommand):
                         last_name=random.choice(last_names)
                     )
 
-                # Teachers (Reduced to 2 per school)
+                # Teachers
                 for t in range(2):
-                    t_username = f"teacher_{district.id}_{i}_{t}"
+                    t_username = f"teacher_{d_idx}_{s_idx}_{t}"
                     if not CustomUser.objects.filter(username=t_username).exists():
                         CustomUser.objects.create_user(
                             username=t_username,
@@ -119,12 +104,12 @@ class Command(BaseCommand):
                             subject=random.choice(subjects).name
                         )
 
-                # Students (Reduced to 5 per school)
-                for s in range(5):
-                    s_username = f"student_{district.id}_{i}_{s}"
-                    if not CustomUser.objects.filter(username=s_username).exists():
+                # Students
+                for st in range(5):
+                    st_username = f"student_{d_idx}_{s_idx}_{st}"
+                    if not CustomUser.objects.filter(username=st_username).exists():
                         CustomUser.objects.create_user(
-                            username=s_username,
+                            username=st_username,
                             password="password123",
                             role="student",
                             school=school,
@@ -133,8 +118,8 @@ class Command(BaseCommand):
                             grade="9-A"
                         )
 
-                # Collect books for bulk create
-                for b in range(20):
+                # Books
+                for b in range(15):
                     all_books_to_create.append(Book(
                         school=school,
                         title=f"{random.choice(book_titles)} {random.randint(1, 100)}",
@@ -145,7 +130,5 @@ class Command(BaseCommand):
                         borrow_count=random.randint(0, 10)
                     ))
 
-        # Bulk create books
         Book.objects.bulk_create(all_books_to_create)
-
-        self.stdout.write(self.style.SUCCESS('Karakalpakstan data seeding completed successfully!'))
+        self.stdout.write(self.style.SUCCESS(f'Seed successful! Logins: admin_0_1, admin_0_2, etc. Password: password123'))
