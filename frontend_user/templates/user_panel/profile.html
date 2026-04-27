@@ -5,7 +5,7 @@
 {% block page_title %}{% trans "Mening profilim" %}{% endblock %}
 
 {% block sidebar_nav %}
-{% if user.role == 'student' %}
+{% if user.role == 'student' or user.role == 'teacher' %}
 <a href="{% url 'frontend_user:library' %}" class="nav-link">
     <i class="fas fa-book"></i> <span>{% trans "Kutubxona" %}</span>
 </a>
@@ -16,11 +16,11 @@
 <a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
     <i class="fas fa-th-large"></i> <span>{% trans "Dashboard" %}</span>
 </a>
-<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
-    <i class="fas fa-user-graduate"></i> <span>{% trans "O'quvchilar" %}</span>
+<a href="{% url 'frontend_school:qr_scanner' %}" class="nav-link">
+    <i class="fas fa-qrcode"></i> <span>{% trans "QR Skaner" %}</span>
 </a>
-<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link">
-    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
+<a href="{% url 'frontend_school:books_list' %}" class="nav-link">
+    <i class="fas fa-book"></i> <span>{% trans "Kitoblar" %}</span>
 </a>
 {% elif user.role == 'superuser' %}
 <a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
@@ -54,7 +54,7 @@
             </p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div class="responsive-grid-2" style="margin-top: 30px;">
             <div class="glass-card" style="padding: 20px;">
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px;">{% trans "Foydalanuvchi nomi" %}</p>
                 <p style="font-weight: 600;">{{ user.username }}</p>
@@ -75,8 +75,13 @@
             </div>
         </div>
 
-        <div style="margin-top: 40px; text-align: center;">
-            <a href="{% url 'frontend_user:profile_edit' %}" class="btn-primary" style="padding: 12px 40px; text-decoration: none;">{% trans "Ma'lumotlarni tahrirlash" %}</a>
+        <div style="margin-top: 40px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'frontend_user:profile_edit' %}" class="btn-primary" style="padding: 12px 30px; text-decoration: none; flex: 1; max-width: 250px;">
+                <i class="fas fa-user-edit" style="margin-right: 8px;"></i> {% trans "Ma'lumotlarni tahrirlash" %}
+            </a>
+            <a href="{% url 'frontend_user:change_password' %}" class="glass-card" style="padding: 12px 30px; text-decoration: none; flex: 1; max-width: 250px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 12px; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)';" onmouseout="this.style.background='transparent';">
+                <i class="fas fa-key" style="margin-right: 8px; color: var(--primary);"></i> {% trans "Parolni o'zgartirish" %}
+            </a>
         </div>
     </div>
 </div>

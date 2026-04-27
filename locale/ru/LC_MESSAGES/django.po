@@ -317,3 +317,19 @@ msgid ""
 "birozdan so'ng qayta urinib ko'ring."
 msgstr ""
 "Мы уже знаем об этом и скоро всё исправим. Пожалуйста, попробуйте позже."
+msgid "Qolgan kitoblar"
+msgstr "Оставшиеся книги"
+msgid "QR Skaner"
+msgstr "QR Сканер"
+
+msgid "Kitob berish yoki qabul qilish"
+msgstr "Выдача или прием книг"
+
+msgid "O'quvchi telefonidagi QR-kodni skanerlang. Tizim amal turini o'zi aniqlaydi."
+msgstr "Отсканируйте QR-код на телефоне ученика. Система сама определит тип операции."
+
+msgid "Kod orqali kiritish"
+msgstr "Ввод кодом"
+
+msgid "Amal turini tanlang va tokenni kiriting"
+msgstr "Выберите тип операции и введите токен"

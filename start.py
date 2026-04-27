@@ -2,8 +2,12 @@ import subprocess
 import time
 import sys
 import os
-import signal
 import re
+from pathlib import Path
+
+# Configuration
+BASE_DIR = Path(__file__).resolve().parent
+PORT = 8000
 
 def kill_process_on_port(port):
     """Kills any process running on the specified port (Windows only)."""
@@ -30,24 +34,20 @@ def run_servers():
     print("="*50 + "\n")
 
     # Step 1: Cleanup ports
-    kill_process_on_port(8000)
-
-    # Paths
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    backend_dir = os.path.join(base_dir, "backend")
+    kill_process_on_port(PORT)
 
     # Start Backend
-    print("[DIR] Starting Backend (Django) on http://localhost:8000...")
+    print(f"[DIR] Starting Backend (Django) on http://localhost:{PORT}...")
     backend_process = subprocess.Popen(
-        [sys.executable, "manage.py", "runserver", "8000"],
-        cwd=backend_dir,
+        [sys.executable, "manage.py", "runserver", str(PORT)],
+        cwd=BASE_DIR,
         # On Windows, we need to show the console or it might block
         creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
     )
 
     print("\n[OK] Server ishga tushirildi!")
-    print("[>>] Web Interface: http://localhost:8000")
-    print("[>>] Admin Panel: http://localhost:8000/admin")
+    print(f"[>>] Web Interface: http://localhost:{PORT}")
+    print(f"[>>] Admin Panel: http://localhost:{PORT}/admin")
     print("\n[!!] To'xtatish uchun: Ctrl+C\n")
 
     try:
@@ -55,7 +55,7 @@ def run_servers():
             time.sleep(2)
             if backend_process.poll() is not None:
                 print("[ERR] Backend server to'xtab qoldi. Qayta ishga tushirilmoqda...")
-                backend_process = subprocess.Popen([sys.executable, "manage.py", "runserver", "8000"], cwd=backend_dir)
+                backend_process = subprocess.Popen([sys.executable, "manage.py", "runserver", str(PORT)], cwd=BASE_DIR)
     except KeyboardInterrupt:
         print("\n[...] Hammasi yopilmoqda...")
         if os.name == 'nt':

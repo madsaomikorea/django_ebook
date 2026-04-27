@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from schools.models import School, Institution
+from schools.models import School, Institution, District
 from accounts.models import CustomUser
 from books.models import Book, BookIssue
 
@@ -28,6 +28,12 @@ def schools_list(request):
 def muassasalar_list(request):
     institutions = Institution.objects.all().order_by('-id')
     return render(request, 'admin_panel/muassasalar.html', {'institutions': institutions})
+
+@login_required(login_url='login')
+def districts_list(request):
+    from django.db.models import Count
+    districts = District.objects.annotate(school_count=Count('schools')).order_by('name')
+    return render(request, 'admin_panel/districts.html', {'districts': districts})
 
 @login_required(login_url='login')
 def statistics(request):
@@ -131,6 +137,39 @@ def muassasa_delete(request, pk):
         inst.delete()
         return redirect('frontend_admin:muassasalar_list')
     return render(request, 'admin_panel/confirm_delete.html', {'object': inst, 'type': 'muassasani'})
+
+from .forms import DistrictForm
+
+@login_required(login_url='login')
+def district_add(request):
+    if request.method == 'POST':
+        form = DistrictForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('frontend_admin:districts_list')
+    else:
+        form = DistrictForm()
+    return render(request, 'admin_panel/district_form.html', {'form': form, 'title': 'Yangi tuman qo\'shish'})
+
+@login_required(login_url='login')
+def district_edit(request, pk):
+    district = get_object_or_404(District, pk=pk)
+    if request.method == 'POST':
+        form = DistrictForm(request.POST, instance=district)
+        if form.is_valid():
+            form.save()
+            return redirect('frontend_admin:districts_list')
+    else:
+        form = DistrictForm(instance=district)
+    return render(request, 'admin_panel/district_form.html', {'form': form, 'title': 'Tuman ma\'lumotlarini tahrirlash'})
+
+@login_required(login_url='login')
+def district_delete(request, pk):
+    district = get_object_or_404(District, pk=pk)
+    if request.method == 'POST':
+        district.delete()
+        return redirect('frontend_admin:districts_list')
+    return render(request, 'admin_panel/confirm_delete.html', {'object': district, 'type': 'tumanni'})
 
 @login_required(login_url='login')
 def school_add(request):

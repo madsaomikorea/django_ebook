@@ -122,5 +122,21 @@
     // Start timer
     setInterval(updateTimer, 1000);
     updateTimer();
+
+    const statusUrl = "{% url 'frontend_user:check_return_status' issue_obj.id %}";
+    function checkStatus() {
+        fetch(statusUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_returned) {
+                    document.getElementById('instruction-state').style.display = 'none';
+                    document.getElementById('qr-container').style.display = 'none';
+                    document.getElementById('success-state').style.display = 'block';
+                    return;
+                }
+                setTimeout(checkStatus, 3000);
+            });
+    }
+    checkStatus();
 </script>
 {% endblock %}

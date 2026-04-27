@@ -8,23 +8,14 @@
 
 ```
 online_kutibxona/
-├── backend/                  # Django REST API
-│   ├── core/                 # Настройки, urls, wsgi
-│   ├── accounts/             # Пользователи, роли, авторизация
-│   ├── schools/              # Школы, учреждения
-│   ├── books/                # Книги, категории, выдача
-│   ├── students/             # Ученики
-│   ├── teachers/             # Учителя
-│   └── statistics/           # Статистика
-│
-├── frontend_admin/           # Django Templates — Super Admin панель
-│   └── templates/admin_panel/
-│
-├── frontend_school/          # Django Templates — School Admin панель
-│   └── templates/school_panel/
-│
-└── frontend_user/            # Django Templates — Ученик/Учитель интерфейс
-    └── templates/user_panel/
+├── core/                 # Настройки, urls, wsgi
+├── accounts/             # Пользователи, роли, авторизация
+├── schools/              # Школы, учреждения
+├── books/                # Книги, категории, выдача
+├── stats/                # Статистика
+├── frontend_admin/       # Django Templates — Super Admin панель
+├── frontend_school/      # Django Templates — School Admin панель
+└── frontend_user/        # Django Templates — Ученик/Учитель интерфейс
 ```
 
 **Стек:**

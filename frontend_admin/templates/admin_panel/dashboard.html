@@ -11,6 +11,9 @@
 <a href="{% url 'frontend_admin:schools_list' %}" class="nav-link">
     <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
 </a>
+<a href="{% url 'frontend_admin:districts_list' %}" class="nav-link">
+    <i class="fas fa-map-marker-alt"></i> <span>{% trans "Tumanlar" %}</span>
+</a>
 <a href="{% url 'frontend_admin:muassasalar_list' %}" class="nav-link">
     <i class="fas fa-building"></i> <span>{% trans "Muassasalar" %}</span>
 </a>
@@ -76,6 +79,7 @@
             <thead>
                 <tr style="border-bottom: 1px solid var(--border);">
                     <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Maktab nomi" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Tuman (Rayon)" %}</th>
                     <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Manzil" %}</th>
                     <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Kontakt" %}</th>
                     <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Amallar" %}</th>
@@ -85,6 +89,7 @@
                 {% for school in schools %}
                 <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s;">
                     <td style="padding: 15px; font-weight: 600;">{{ school.name }}</td>
+                    <td style="padding: 15px; color: var(--text-muted);">{{ school.district.name|default:"—" }}</td>
                     <td style="padding: 15px; color: var(--text-muted);">{{ school.address }}</td>
                     <td style="padding: 15px; color: var(--text-muted);">{{ school.contact }}</td>
                     <td style="padding: 15px;">
@@ -93,7 +98,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                    <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">
                         {% trans "Hozircha maktablar qo'shilmagan" %}
                     </td>
                 </tr>

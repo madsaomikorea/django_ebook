@@ -99,6 +99,83 @@
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
+
+        // Real-time Word/Char Counter
+        function initCounters() {
+            const inputs = document.querySelectorAll('[data-limit-chars], [data-limit-words]');
+            inputs.forEach(input => {
+                const charLimit = input.getAttribute('data-limit-chars');
+                const wordLimit = input.getAttribute('data-limit-words');
+                
+                // Create counter element
+                const counterDiv = document.createElement('div');
+                counterDiv.className = 'field-counter';
+                counterDiv.style.cssText = 'font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; text-align: right; transition: 0.3s;';
+                
+                // Append after input
+                input.parentNode.appendChild(counterDiv);
+                
+                const update = () => {
+                    const text = input.value.trim();
+                    const chars = text.length;
+                    const words = text ? text.split(/\s+/).length : 0;
+                    
+                    let status = '';
+                    if (charLimit) {
+                        status += `${chars}/${charLimit} {% trans 'belgi' %}`;
+                    }
+                    if (wordLimit) {
+                        if (status) status += ' | ';
+                        status += `${words}/${wordLimit} {% trans 'so\'z' %}`;
+                    }
+                    counterDiv.innerText = status;
+                    
+                    if ((charLimit && chars > charLimit) || (wordLimit && words > wordLimit)) {
+                        counterDiv.style.color = '#ef4444';
+                        counterDiv.style.fontWeight = '700';
+                    } else {
+                        counterDiv.style.color = 'var(--text-muted)';
+                        counterDiv.style.fontWeight = '400';
+                    }
+                };
+                
+                input.addEventListener('input', update);
+                update(); // Initial check
+            });
+        }
+        document.addEventListener('DOMContentLoaded', initCounters);
+
+        // Password Visibility Toggle
+        function initPasswordToggles() {
+            const passFields = document.querySelectorAll('input[type="password"]');
+            passFields.forEach(field => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'password-wrapper';
+                wrapper.style.position = 'relative';
+                field.parentNode.insertBefore(wrapper, field);
+                wrapper.appendChild(field);
+                
+                const toggle = document.createElement('i');
+                toggle.className = 'fas fa-eye';
+                toggle.style.cssText = 'position: absolute; right: 15px; top: 18px; cursor: pointer; color: var(--text-muted); transition: 0.3s; z-index: 10;';
+                
+                toggle.onclick = () => {
+                    if (field.type === 'password') {
+                        field.type = 'text';
+                        toggle.className = 'fas fa-eye-slash';
+                        toggle.style.color = 'var(--primary)';
+                    } else {
+                        field.type = 'password';
+                        toggle.className = 'fas fa-eye';
+                        toggle.style.color = 'var(--text-muted)';
+                    }
+                };
+                
+                wrapper.appendChild(toggle);
+                field.style.paddingRight = '45px';
+            });
+        }
+        document.addEventListener('DOMContentLoaded', initPasswordToggles);
     </script>
     {% block extra_scripts %}{% endblock %}
 </body>

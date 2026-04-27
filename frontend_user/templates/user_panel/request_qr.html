@@ -25,9 +25,11 @@
 <div style="max-width: 600px; margin: 0 auto; text-align: center;">
     <div class="glass-panel animate-fade" style="padding: 40px;">
         <div id="instruction-state">
-            <i class="fas fa-qrcode" style="font-size: 4rem; color: var(--primary); margin-bottom: 20px;"></i>
-            <h2 style="margin-bottom: 20px;">{% trans "QR-kodni ko'rsating" %}</h2>
-            <p style="color: var(--text-muted); margin-bottom: 35px; line-height: 1.6;">
+            <div style="background: rgba(217, 119, 6, 0.1); width: 60px; height: 60px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i class="fas fa-qrcode" style="font-size: 2rem; color: var(--primary);"></i>
+            </div>
+            <h4 style="margin-bottom: 8px; font-size: 1.1rem; font-weight: 700; color: white;">{% trans "QR-kodni ko'rsating" %}</h4>
+            <p style="color: var(--text-muted); margin-bottom: 25px; line-height: 1.4; font-size: 0.75rem; max-width: 320px; margin-left: auto; margin-right: auto; opacity: 0.8;">
                 {% trans "Kitobni olish uchun quyidagi QR-kodni kutubxonachiga ko'rsating." %}
                 <br>{% trans "Kutubxonachi skanerlagandan so'ng broningiz tasdiqlanadi." %}
             </p>
@@ -41,7 +43,7 @@
             <p style="color: var(--text-muted); margin-bottom: 35px;">{% trans "Kitob muvaffaqiyatli berildi. Yoqimli mutolaa tilaymiz!" %}</p>
         </div>
         
-        <div id="qr-container" style="display: inline-block; padding: 25px; background: white; border-radius: 15px; margin-bottom: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div id="qr-container" style="display: inline-block; padding: 20px; background: white; border-radius: 24px; margin-bottom: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 8px solid rgba(255,255,255,0.05);">
             <div id="qrcode"></div>
             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
                 <p style="margin: 0; font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">{% trans "Manual ID:" %}</p>
@@ -58,24 +60,24 @@
         </div>
 
         <div style="text-align: left; margin-bottom: 35px;">
-            <div class="glass-card" style="padding: 20px; border-left: 4px solid var(--primary);">
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">{% trans "Tanlangan kitob:" %}</p>
-                <h4 style="font-size: 1.2rem; margin-bottom: 15px;">{{ request_obj.book.title }}</h4>
+            <div class="glass-card" style="padding: 15px 20px; border-left: 3px solid var(--primary);">
+                <p style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">{% trans "Tanlangan kitob:" %}</p>
+                <h4 style="font-size: 1rem; margin-bottom: 12px;">{{ request_obj.book.title }}</h4>
                 <div style="display: flex; gap: 20px;">
                     <div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted);">{% trans "Sana:" %}</p>
-                        <p style="font-weight: 600; font-size: 0.9rem;">{{ request_obj.requested_at|date:"d.m.Y" }}</p>
+                        <p style="font-size: 0.65rem; color: var(--text-muted);">{% trans "Sana:" %}</p>
+                        <p style="font-weight: 600; font-size: 0.8rem;">{{ request_obj.requested_at|date:"d.m.Y" }}</p>
                     </div>
                     <div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted);">{% trans "Status:" %}</p>
-                        <p id="current-status" style="font-weight: 600; font-size: 0.9rem; color: var(--accent);">{% trans "Kutilmoqda..." %}</p>
+                        <p style="font-size: 0.65rem; color: var(--text-muted);">{% trans "Status:" %}</p>
+                        <p id="current-status" style="font-weight: 600; font-size: 0.8rem; color: var(--accent);">{% trans "Kutilmoqda..." %}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 15px;">
-            <a href="{% url 'frontend_user:my_books' %}" class="btn-primary" style="padding: 15px;">
+            <a href="{% url 'frontend_user:my_books' %}" class="btn-primary" style="padding: 12px; font-size: 0.9rem;">
                 {% trans "Mening kitoblarimga qaytish" %}
             </a>
         </div>

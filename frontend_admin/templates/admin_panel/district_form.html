@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Maktab" %} | Online Kutibxona{% endblock %}
+{% block title %}{{ title }} | Online Kutibxona{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block sidebar_nav %}
 <a href="{% url 'frontend_admin:dashboard' %}" class="nav-link">
     <i class="fas fa-university"></i> <span>{% trans "Bosh sahifa" %}</span>
 </a>
-<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link active">
+<a href="{% url 'frontend_admin:schools_list' %}" class="nav-link">
     <i class="fas fa-school"></i> <span>{% trans "Maktablar" %}</span>
 </a>
-<a href="{% url 'frontend_admin:districts_list' %}" class="nav-link">
+<a href="{% url 'frontend_admin:districts_list' %}" class="nav-link active">
     <i class="fas fa-map-marker-alt"></i> <span>{% trans "Tumanlar" %}</span>
 </a>
 <a href="{% url 'frontend_admin:muassasalar_list' %}" class="nav-link">
@@ -23,13 +23,10 @@
 <a href="{% url 'frontend_admin:system_logs' %}" class="nav-link">
     <i class="fas fa-list-ul"></i> <span>{% trans "Tizim loglari" %}</span>
 </a>
-<a href="{% url 'frontend_admin:all_users_list' %}" class="nav-link">
-    <i class="fas fa-users"></i> <span>{% trans "Foydalanuvchilar" %}</span>
-</a>
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 0 auto;">
+<div style="max-width: 600px; margin: 0 auto;">
     <div class="glass-panel animate-fade" style="padding: 40px;">
         <form method="post">
             {% csrf_token %}
@@ -37,17 +34,12 @@
                 {% for field in form %}
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
-                        {% if field.name == 'name' %}<i class="fas fa-school" style="color: var(--primary); margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'address' %}<i class="fas fa-map-marker-alt" style="color: var(--secondary); margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'contact' %}<i class="fas fa-phone" style="color: #10b981; margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'district' %}<i class="fas fa-city" style="color: #f59e0b; margin-right: 8px;"></i>{% endif %}
+                        {% if field.name == 'name' %}<i class="fas fa-map-marked-alt" style="color: var(--primary); margin-right: 8px;"></i>{% endif %}
                         {{ field.label }}
                     </label>
-                    <div style="position: relative;">
-                        {{ field }}
-                    </div>
+                    {{ field }}
                     {% if field.errors %}
-                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;"><i class="fas fa-exclamation-circle"></i> {{ field.errors.0 }}</p>
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ field.errors.0 }}</p>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -57,7 +49,7 @@
                 <button type="submit" class="btn-primary" style="flex: 2; padding: 18px; border-radius: 16px; font-weight: 700;">
                     <i class="fas fa-save"></i> {% trans "Saqlash" %}
                 </button>
-                <a href="{% url 'frontend_admin:schools_list' %}" class="glass-card" style="flex: 1; padding: 18px; border-radius: 16px; text-align: center; text-decoration: none; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                <a href="{% url 'frontend_admin:districts_list' %}" class="glass-card" style="flex: 1; padding: 18px; border-radius: 16px; text-align: center; text-decoration: none; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
                     <i class="fas fa-times"></i> {% trans "Bekor qilish" %}
                 </a>
             </div>

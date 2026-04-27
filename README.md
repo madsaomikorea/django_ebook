@@ -24,23 +24,22 @@ Loyiha modulli arxitekturaga asoslangan bo'lib, har bir rol uchun alohida fronte
 
 ```text
 elektronKUTIBXAN/
-├── backend/                  # Django asosiy loyiha papkasi
-│   ├── core/                 # Sozlamalar va global marshrutlash
-│   ├── accounts/             # Foydalanuvchilar, rollar va xavfsizlik (HMAC Tokens)
-│   ├── schools/              # Maktablar va muassasalar bazasi
-│   ├── books/                # Kitoblar katalogi, inventar va ijara tizimi
-│   ├── stats/                # Tizim loglari va tahliliy ma'lumotlar
-│   ├── frontend_admin/       # Super Admin interfeysi (Django Templates)
-│   ├── frontend_school/      # Maktab Admini/Kutubxonachi interfeysi
-│   ├── frontend_user/        # O'quvchi va O'qituvchi interfeysi
-│   ├── static/               # Global CSS/JS va dizayn aktivlari
-│   └── templates/            # Umumiy va asosiy shablonlar (Base layouts)
-├── scripts/                  # Avtomatlashtirish skriptlari
+├── core/                 # Sozlamalar va global marshrutlash
+├── accounts/             # Foydalanuvchilar, rollar va xavfsizlik (HMAC Tokens)
+├── schools/              # Maktablar va muassasalar bazasi
+├── books/                # Kitoblar katalogi, inventar va ijara tizimi
+├── stats/                # Tizim loglari va tahliliy ma'lumotlar
+├── frontend_admin/       # Super Admin interfeysi (Django Templates)
+├── frontend_school/      # Maktab Admini/Kutubxonachi interfeysi
+├── frontend_user/        # O'quvchi va O'qituvchi interfeysi
+├── static/               # Global CSS/JS va dizayn aktivlari
+├── templates/            # Umumiy va asosiy shablonlar (Base layouts)
+├── scripts/              # Avtomatlashtirish skriptlari
 │   ├── seed_demo.py          # Demo ma'lumotlarni yaratish
 │   ├── make_translations.py  # Tarjimalarni avtomatlashtirish
 │   └── fix_roles.py          # Rollarni tekshirish va tuzatish
 ├── media/                    # Yuklangan rasmlar va QR-kodlar (Git-da saqlanmaydi)
-├── Dockerfile                # Docker sozlamalari
+├── Dockerfile                # Docker sozламalari
 └── README.md                 # Loyiha hujjatlari
 ```
 

@@ -3,7 +3,6 @@ import string
 import qrcode
 import os
 from django.conf import settings
-from accounts.models import CustomUser
 
 def generate_password(length=None):
     if length is None:

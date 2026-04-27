@@ -1,8 +1,20 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 from books.models import Book
 from accounts.models import CustomUser
 from .models import News
+
+def validate_word_limit(value, limit):
+    if not value: return
+    words = value.split()
+    if len(words) > limit:
+        raise ValidationError(_(f"Limit: {limit} ta so'z. Siz {len(words)} ta so'z kiritdingiz."))
+
+def validate_char_limit(value, limit):
+    if not value: return
+    if len(value) > limit:
+        raise ValidationError(_(f"Limit: {limit} ta belgi. Siz {len(value)} ta belgi kiritdingiz."))
 
 class BookForm(forms.ModelForm):
     category_name = forms.CharField(
@@ -15,8 +27,8 @@ class BookForm(forms.ModelForm):
         model = Book
         fields = ['title', 'description', 'cover', 'total_count', 'available_count']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '150', 'data-limit-words': '20'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'data-limit-words': '500'}),
             'total_count': forms.NumberInput(attrs={'class': 'form-control'}),
             'available_count': forms.NumberInput(attrs={'class': 'form-control'}),
         }
@@ -30,6 +42,17 @@ class BookForm(forms.ModelForm):
         
         # Add categories for datalist
         self.categories = Category.objects.all().order_by('name')
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        validate_char_limit(title, 150)
+        validate_word_limit(title, 20)
+        return title
+
+    def clean_description(self):
+        desc = self.cleaned_data.get('description')
+        validate_word_limit(desc, 500)
+        return desc
 
     def save(self, commit=True):
         from books.models import Category
@@ -47,34 +70,83 @@ class BookForm(forms.ModelForm):
         return book
 
 class StudentForm(forms.ModelForm):
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'grade', 'password']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'grade': forms.TextInput(attrs={'class': 'form-control'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
-        }
+    GRADE_NUMBERS = [(str(i), str(i)) for i in range(1, 12)]
+    GRADE_LETTERS = [
+        ('A', 'A'), ('B', 'B'), ('V', 'V'), ('G', 'G'), ('D', 'D'), 
+        ('E', 'E'), ('F', 'F'), ('I', 'I'), ('J', 'J'), ('K', 'K'),
+        ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'),
+        ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('X', 'X')
+    ]
+    
+    grade_number = forms.ChoiceField(
+        choices=GRADE_NUMBERS, 
+        label=_("Sinf"),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    grade_letter = forms.ChoiceField(
+        choices=GRADE_LETTERS, 
+        label=_("Harf"),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        from django.utils.translation import gettext_lazy as _
-        self.fields['username'].label = _("Foydalanuvchi nomi")
-        self.fields['first_name'].label = _("Ism")
-        self.fields['last_name'].label = _("Familiya")
-        self.fields['grade'].label = _("Sinf")
-        self.fields['password'].label = _("Parol")
-
-class TeacherForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['username', 'first_name', 'last_name', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.grade:
+            # Try to split "7A" into "7" and "A"
+            import re
+            match = re.match(r"(\d+)([A-ZА-Я]?)", self.instance.grade)
+            if match:
+                self.fields['grade_number'].initial = match.group(1)
+                self.fields['grade_letter'].initial = match.group(2)
+        
+        from django.utils.translation import gettext_lazy as _
+        self.fields['username'].label = _("Foydalanuvchi nomi")
+        self.fields['first_name'].label = _("Ism")
+        self.fields['last_name'].label = _("Familiya")
+        self.fields['password'].label = _("Parol")
+    def clean_first_name(self):
+        name = self.cleaned_data.get('first_name')
+        validate_char_limit(name, 50)
+        return name
+
+    def clean_last_name(self):
+        name = self.cleaned_data.get('last_name')
+        validate_char_limit(name, 50)
+        return name
+
+    def clean_username(self):
+        name = self.cleaned_data.get('username')
+        validate_char_limit(name, 50)
+        return name
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        num = self.cleaned_data.get('grade_number')
+        let = self.cleaned_data.get('grade_letter')
+        user.grade = f"{num}{let}"
+        if commit:
+            user.save()
+        return user
+
+class TeacherForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'first_name', 'last_name', 'subject', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '100', 'list': 'subject-list', 'autocomplete': 'off'}),
             'password': forms.PasswordInput(attrs={'class': 'form-control'}),
         }
 
@@ -84,14 +156,47 @@ class TeacherForm(forms.ModelForm):
         self.fields['username'].label = _("Foydalanuvchi nomi")
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
+        self.fields['subject'].label = _("Fan")
         self.fields['password'].label = _("Parol")
+        
+        from schools.models import Subject
+        self.subjects = Subject.objects.all().order_by('name')
+    def clean_first_name(self):
+        name = self.cleaned_data.get('first_name')
+        validate_char_limit(name, 50)
+        return name
+
+    def clean_last_name(self):
+        name = self.cleaned_data.get('last_name')
+        validate_char_limit(name, 50)
+        return name
+
+    def clean_username(self):
+        name = self.cleaned_data.get('username')
+        validate_char_limit(name, 50)
+        return name
+
+    def clean_subject(self):
+        val = self.cleaned_data.get('subject')
+        validate_char_limit(val, 100)
+        return val
 
 class NewsForm(forms.ModelForm):
     class Meta:
         model = News
         fields = ['title', 'body', 'is_published']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'body': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '150', 'data-limit-words': '20'}),
+            'body': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'data-limit-words': '1000'}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        validate_char_limit(title, 150)
+        validate_word_limit(title, 20)
+        return title
+
+    def clean_body(self):
+        body = self.cleaned_data.get('body')
+        validate_word_limit(body, 1000)
+        return body

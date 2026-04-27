@@ -17,6 +17,44 @@ class Book(models.Model):
     available_count = models.IntegerField()
     borrow_count = models.IntegerField(default=0)
 
+    @property
+    def currently_reading_count(self):
+        return self.total_count - self.available_count
+
+    def save(self, *args, **kwargs):
+        # Image optimization: resize and compress cover only if it's new or changed
+        if self.cover:
+            try:
+                # Check if this is a new file being uploaded
+                # (it won't have a value in _committed if it's a new UploadedFile)
+                is_new_image = not getattr(self.cover, '_committed', True)
+                
+                if is_new_image:
+                    from PIL import Image
+                    from io import BytesIO
+                    from django.core.files.base import ContentFile
+                    import os
+
+                    img = Image.open(self.cover)
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    MAX_SIZE = (800, 1200)
+                    if img.height > MAX_SIZE[1] or img.width > MAX_SIZE[0]:
+                        img.thumbnail(MAX_SIZE, Image.Resampling.LANCZOS)
+                    
+                    buffer = BytesIO()
+                    img.save(buffer, format='JPEG', quality=75, optimize=True)
+                    
+                    filename = os.path.basename(self.cover.name)
+                    # Use a unique name if necessary, but here we just want to avoid 
+                    # the infinite loop/duplicate issue on every model save
+                    self.cover.save(filename, ContentFile(buffer.getvalue()), save=False)
+            except Exception as e:
+                print(f"Error optimizing image: {e}")
+                
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 

@@ -8,11 +8,8 @@
 <a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
     <i class="fas fa-chart-line"></i> <span>{% trans "Dashboard" %}</span>
 </a>
-<a href="{% url 'frontend_school:qr_issue' %}" class="nav-link">
-    <i class="fas fa-qrcode"></i> <span>{% trans "Kitob berish (QR)" %}</span>
-</a>
-<a href="{% url 'frontend_school:qr_receive' %}" class="nav-link">
-    <i class="fas fa-undo"></i> <span>{% trans "Kitob qabul qilish" %}</span>
+<a href="{% url 'frontend_school:qr_scanner' %}" class="nav-link">
+    <i class="fas fa-qrcode"></i> <span>{% trans "QR Skaner" %}</span>
 </a>
 <a href="{% url 'frontend_school:students_list' %}" class="nav-link">
     <i class="fas fa-users"></i> <span>{% trans "O'quvchilar" %}</span>
@@ -30,7 +27,7 @@
 
 {% block content %}
 <div class="glass-panel animate-fade">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap;">
+    <div class="search-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap;">
         <h3 style="margin: 0;"><i class="fas fa-chalkboard-teacher" style="color: var(--secondary);"></i> {% trans "Maktab o'qituvchilari" %}</h3>
         
         <div style="display: flex; gap: 15px; flex-grow: 1; max-width: 500px;">
@@ -60,7 +57,7 @@
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 15px;">{{ teacher.username }}</td>
                     <td style="padding: 15px;">{{ teacher.first_name }} {{ teacher.last_name }}</td>
-                    <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{% trans "O'qituvchi" %}</span></td>
+                    <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{{ teacher.subject|default:"O'qituvchi" }}</span></td>
                     <td style="padding: 15px;">
                         <a href="{% url 'frontend_school:teacher_edit' teacher.pk %}" style="color: var(--secondary); margin-right: 15px;"><i class="fas fa-edit"></i></a>
                         <a href="{% url 'frontend_school:teacher_delete' teacher.pk %}" style="color: #ef4444;"><i class="fas fa-trash"></i></a>

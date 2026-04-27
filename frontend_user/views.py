@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from books.models import Book
+from books.models import Book, Category
 from django.db.models import Q
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
 
 @login_required(login_url='login')
 def library(request):
@@ -15,20 +18,26 @@ def library(request):
             Q(category__name__icontains=query)
         )
     
-    # Filter by user's school if applicable
-    if request.user.school:
-        books = books.filter(school=request.user.school)
+    # Get all categories for quick filters
+    categories = Category.objects.all()
         
-    return render(request, 'user_panel/library.html', {'books': books})
+    return render(request, 'user_panel/library.html', {
+        'books': books,
+        'categories': categories,
+        'current_query': query or ''
+    })
 
 @login_required(login_url='login')
 def my_books(request):
     from books.models import BookIssue, BookRequest
     issues = BookIssue.objects.filter(user=request.user, is_returned=False).order_by('-issued_at')
-    requests = BookRequest.objects.filter(user=request.user).order_by('-requested_at')
+    requests = BookRequest.objects.filter(user=request.user, status='pending').order_by('-requested_at')
+    history = BookIssue.objects.filter(user=request.user, is_returned=True).order_by('-returned_at')
+    
     return render(request, 'user_panel/my_books.html', {
         'issues': issues,
-        'requests': requests
+        'requests': requests,
+        'history': history
     })
 
 @login_required(login_url='login')
@@ -44,6 +53,19 @@ def profile_edit(request):
         user.save()
         return redirect('frontend_user:profile')
     return render(request, 'user_panel/profile_edit.html')
+
+@login_required(login_url='login')
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
+            return redirect('frontend_user:profile')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'user_panel/password_change.html', {'form': form})
 
 @login_required(login_url='login')
 def book_detail(request, pk):
@@ -99,8 +121,14 @@ def issue_qr(request, pk):
 from django.http import JsonResponse
 def check_request_status(request, pk):
     from books.models import BookRequest
-    request_obj = BookRequest.objects.get(pk=pk)
+    request_obj = get_object_or_404(BookRequest, pk=pk)
     return JsonResponse({'status': request_obj.status})
+
+@login_required(login_url='login')
+def check_return_status(request, pk):
+    from books.models import BookIssue
+    issue_obj = get_object_or_404(BookIssue, pk=pk)
+    return JsonResponse({'is_returned': issue_obj.is_returned})
 
 @login_required(login_url='login')
 def get_rotating_token(request, type, pk):

@@ -1,7 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 from accounts.models import CustomUser
 from books.models import Book, BookIssue
+
+from django.db.models import Sum
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -9,9 +14,15 @@ def dashboard(request):
     context = {}
     if school:
         recent_activities = BookIssue.objects.filter(book__school=school).order_by('-issued_at')[:5]
+        stats = Book.objects.filter(school=school).aggregate(
+            total_copies=Sum('total_count'),
+            available_copies=Sum('available_count')
+        )
         context = {
             'student_count': CustomUser.objects.filter(school=school, role='student').count(),
             'book_count': Book.objects.filter(school=school).count(),
+            'total_copies': stats['total_copies'] or 0,
+            'available_copies': stats['available_copies'] or 0,
             'issued_count': BookIssue.objects.filter(book__school=school, is_returned=False).count(),
             'recent_activities': recent_activities,
         }
@@ -55,8 +66,34 @@ def teachers_list(request):
 @login_required(login_url='login')
 def books_list(request):
     school = request.user.school
-    books = Book.objects.filter(school=school).order_by('title')
-    return render(request, 'school_panel/books.html', {'books': books})
+    query = request.GET.get('q')
+    category_id = request.GET.get('category')
+    no_cover = request.GET.get('no_cover')
+    
+    books = Book.objects.filter(school=school)
+    
+    if query:
+        books = books.filter(title__icontains=query)
+    
+    if category_id:
+        books = books.filter(category_id=category_id)
+        
+    if no_cover == '1':
+        from django.db.models import Q
+        books = books.filter(Q(cover='') | Q(cover__isnull=True))
+        
+    books = books.order_by('title')
+    
+    from books.models import Category
+    categories = Category.objects.all().order_by('name')
+    
+    return render(request, 'school_panel/books.html', {
+        'books': books, 
+        'categories': categories,
+        'query': query,
+        'selected_category': int(category_id) if category_id else None,
+        'no_cover': no_cover == '1'
+    })
 
 @login_required(login_url='login')
 def issued_books_list(request):
@@ -72,16 +109,27 @@ def news_list(request):
     return render(request, 'school_panel/news.html', {'news': news})
 
 @login_required(login_url='login')
-def qr_issue(request):
-    return render(request, 'school_panel/qr_issue.html')
+def qr_unified(request):
+    return render(request, 'school_panel/qr_unified.html')
 
-@login_required(login_url='login')
-def qr_receive(request):
-    return render(request, 'school_panel/qr_receive.html')
+@csrf_exempt
+def process_qr_unified(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            token = data.get('token', '')
+            
+            if token.startswith('REQ_'):
+                return process_qr(request)
+            elif token.startswith('RET_'):
+                return process_receive_qr(request)
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Noma\'lum QR-kod turi. Iltimos, kitob berish yoki qaytarish kodini skanerlang.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    return JsonResponse({'status': 'error', 'message': 'Method not allowed'})
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
+
 
 @csrf_exempt
 def process_qr(request):
