@@ -108,6 +108,23 @@ def issued_books_list(request):
     return render(request, 'school_panel/issued_books.html', {'issues': issues})
 
 @login_required(login_url='login')
+def history_list(request):
+    school = request.user.school
+    query = request.GET.get('q')
+    history = BookIssue.objects.filter(book__school=school).order_by('-issued_at')
+    
+    if query:
+        from django.db.models import Q
+        history = history.filter(
+            Q(book__title__icontains=query) |
+            Q(user__username__icontains=query) |
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query)
+        )
+    
+    return render(request, 'school_panel/history.html', {'history': history, 'query': query})
+
+@login_required(login_url='login')
 def news_list(request):
     from .models import News
     school = request.user.school

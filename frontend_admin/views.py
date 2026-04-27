@@ -21,10 +21,25 @@ def dashboard(request):
 @login_required(login_url='login')
 def schools_list(request):
     from django.db.models import Count, Q
+    district_id = request.GET.get('district')
+    
     schools = School.objects.annotate(
-        student_count=Count('customuser', filter=Q(customuser__role='student'))
-    ).order_by('-id')
-    return render(request, 'admin_panel/schools.html', {'schools': schools})
+        student_count=Count('customuser', filter=Q(customuser__role='student')),
+        book_count=Count('book', distinct=True),
+        category_count=Count('book__category', distinct=True)
+    )
+    
+    if district_id:
+        schools = schools.filter(district_id=district_id)
+        
+    schools = schools.order_by('-id')
+    districts = District.objects.all().order_by('name')
+    
+    return render(request, 'admin_panel/schools.html', {
+        'schools': schools,
+        'districts': districts,
+        'current_district': district_id
+    })
 
 @login_required(login_url='login')
 def muassasalar_list(request):
@@ -107,7 +122,7 @@ def school_detail(request, pk):
     }
     return render(request, 'admin_panel/school_detail.html', context)
 
-from .forms import SchoolForm, InstitutionForm
+from .forms import SchoolForm, InstitutionForm, UnifiedSchoolForm
 
 @login_required(login_url='login')
 def muassasa_add(request):
@@ -176,12 +191,30 @@ def district_delete(request, pk):
 @login_required(login_url='login')
 def school_add(request):
     if request.method == 'POST':
-        form = SchoolForm(request.POST)
+        form = UnifiedSchoolForm(request.POST)
         if form.is_valid():
-            form.save()
+            # 1. Create School
+            school = form.save()
+            
+            # 2. Create Admin User
+            admin_user = CustomUser.objects.create_user(
+                username=form.cleaned_data['admin_username'],
+                password=form.cleaned_data['admin_password'],
+                role='school_admin',
+                school=school
+            )
+            
+            # Log action
+            from stats.models import ActionLog
+            ActionLog.objects.create(
+                user=request.user,
+                action_type='CREATE',
+                message=f"Yangi maktab ({school.name}) va uning admini ({admin_user.username}) yaratildi."
+            )
+            
             return redirect('frontend_admin:schools_list')
     else:
-        form = SchoolForm()
+        form = UnifiedSchoolForm()
     return render(request, 'admin_panel/school_form.html', {'form': form, 'title': 'Yangi maktab qo\'shish'})
 
 @login_required(login_url='login')

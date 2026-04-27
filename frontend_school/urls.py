@@ -9,6 +9,7 @@ urlpatterns = [
     path('teachers/', views.teachers_list, name='teachers_list'),
     path('books/', views.books_list, name='books_list'),
     path('issued-books/', views.issued_books_list, name='issued_books_list'),
+    path('history/', views.history_list, name='history_list'),
     path('news/', views.news_list, name='news_list'),
     path('qr-scanner/', views.qr_unified, name='qr_scanner'),
     path('process-qr/', views.process_qr, name='process_qr'),

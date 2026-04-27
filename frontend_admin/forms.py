@@ -83,3 +83,46 @@ class SchoolAdminForm(forms.ModelForm):
         val = self.cleaned_data.get('last_name')
         validate_char_limit(val, 50)
         return val
+
+class UnifiedSchoolForm(forms.ModelForm):
+    admin_username = forms.CharField(
+        max_length=150, 
+        required=True, 
+        label=_("Admin login (username)"),
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    admin_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=True,
+        label=_("Admin paroli")
+    )
+    admin_password_confirm = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=True,
+        label=_("Parolni tasdiqlash")
+    )
+
+    class Meta:
+        model = School
+        fields = ['name', 'address', 'contact', 'district']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'contact': forms.TextInput(attrs={'class': 'form-control'}),
+            'district': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def clean_admin_username(self):
+        username = self.cleaned_data.get('admin_username')
+        if CustomUser.objects.filter(username=username).exists():
+            raise ValidationError(_("Ushbu login band. Iltimos boshqasini tanlang."))
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("admin_password")
+        confirm = cleaned_data.get("admin_password_confirm")
+
+        if password and confirm and password != confirm:
+            self.add_error('admin_password_confirm', _("Parollar mos kelmadi."))
+        return cleaned_data
