@@ -105,7 +105,7 @@ def seed():
             )
 
             # Teachers
-            for t in range(5):
+            for t in range(10): # Increased to 10
                 t_username = f"teacher_{d_idx}_{i}_{t}"
                 CustomUser.objects.create_user(
                     username=t_username,
@@ -119,9 +119,10 @@ def seed():
 
             # Students
             grades = ["7-A", "7-B", "8-A", "8-B", "9-A", "9-V", "10-A", "11-B"]
-            for s in range(25): # 25 students per school
+            students = []
+            for s in range(100): # Increased to 100
                 s_username = f"student_{d_idx}_{i}_{s}"
-                CustomUser.objects.create_user(
+                student = CustomUser.objects.create_user(
                     username=s_username,
                     password="password123",
                     role="student",
@@ -130,23 +131,48 @@ def seed():
                     last_name=random.choice(last_names),
                     grade=random.choice(grades)
                 )
+                students.append(student)
 
             # Books
-            for b in range(40): # 40 books per school
-                title = f"{random.choice(book_titles)} {random.randint(1, 100)}" if b > len(book_titles) else book_titles[b % len(book_titles)]
-                total = random.randint(5, 50)
-                Book.objects.create(
+            books = []
+            for b in range(150): # Increased to 150
+                title = f"{random.choice(book_titles)} {random.randint(1, 1000)}" if b > len(book_titles) else book_titles[b % len(book_titles)]
+                total = random.randint(10, 100)
+                book = Book.objects.create(
                     school=school,
                     title=title,
                     description=f"Bu '{title}' kitobi haqida qisqacha ma'lumot. Kitob juda qiziqarli va foydali.",
                     category=random.choice(categories),
                     total_count=total,
-                    available_count=total - random.randint(0, 5),
-                    borrow_count=random.randint(0, 100)
+                    available_count=total,
+                    borrow_count=random.randint(0, 500)
                 )
+                books.append(book)
+
+            # Book Issues (Loans)
+            for _ in range(30): # 30 issues per school
+                student = random.choice(students)
+                book = random.choice(books)
+                if book.available_count > 0:
+                    is_returned = random.choice([True, False])
+                    issued_at = timezone.now() - timedelta(days=random.randint(1, 30))
+                    
+                    issue = BookIssue.objects.create(
+                        book=book,
+                        user=student,
+                        issued_at=issued_at,
+                        is_returned=is_returned
+                    )
+                    
+                    if is_returned:
+                        issue.returned_at = issue.issued_at + timedelta(days=random.randint(1, 14))
+                        issue.save()
+                    else:
+                        book.available_count -= 1
+                        book.save()
 
             # News
-            for n in range(2):
+            for n in range(3):
                 News.objects.create(
                     school=school,
                     title=f"Maktab yangiligi #{n+1}",
@@ -160,7 +186,9 @@ def seed():
         "Nukus davlat pedagogika instituti",
         "Toshkent tibbiyot akademiyasi Nukus filiali",
         "O'zbekiston davlat san'at va madaniyat instituti Nukus filiali",
-        "Toshkent axborot texnologiyalari universiteti Nukus filiali"
+        "Toshkent axborot texnologiyalari universiteti Nukus filiali",
+        "Beruniy nomidagi Qoraqalpoq davlat universiteti",
+        "Nukus innovatsion instituti"
     ]
     for name in kk_institutions:
         Institution.objects.create(

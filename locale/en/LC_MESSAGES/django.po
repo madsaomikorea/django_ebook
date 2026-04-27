@@ -216,6 +216,9 @@ msgstr "Last Name"
 msgid "Sinf"
 msgstr "Grade"
 
+msgid "Sinf va Harf"
+msgstr "Grade and Letter"
+
 msgid "Saqlash"
 msgstr "Save"
 
@@ -318,98 +321,149 @@ msgid ""
 "birozdan so'ng qayta urinib ko'ring."
 msgstr "We've been notified and will fix it soon. Please try again later."
 
-msgid "Tuman bo'yicha saralash"
-msgstr "Filter by District"
+msgid "Parolni o'zgartirmoqchi bo'lsangizgina to'ldiring."
+msgstr "Fill only if you want to change the password."
 
-msgid "Barcha tumanlar"
-msgstr "All Districts"
+msgid "Tizim statistikasi"
+msgstr "System Statistics"
 
-msgid "Filtrni tozalash"
-msgstr "Clear Filter"
+msgid "Foydalanish dinamikasi"
+msgstr "Usage Dynamics"
 
-msgid "ta maktab"
-msgstr "schools"
+msgid "Kategoriyalar"
+msgstr "Categories"
+
+msgid "Eng faol maktablar"
+msgstr "Top Active Schools"
+
+msgid "ta kitobxon"
+msgstr "readers"
+
+msgid "Hozircha ma'lumotlar yo'q"
+msgstr "No data yet"
+
+msgid "Kitob berishlar"
+msgstr "Book Issues"
 
 msgid "Tuman (Rayon)"
 msgstr "District"
 
-msgid "Maktab ma'lumotlari"
-msgstr "School Information"
+msgid "Oxirgi harakatlar"
+msgstr "Recent Activities"
 
-msgid "Maktab admini hisobi"
-msgstr "School Admin Account"
+msgid "Vaqt"
+msgstr "Time"
 
-msgid "Ushbu maktabni boshqarish uchun yangi foydalanuvchi yaratiladi."
-msgstr "A new user will be created to manage this school."
+msgid "Amal"
+msgstr "Action"
 
-msgid "View"
-msgstr "View"
+msgid "Xabar"
+msgstr "Message"
 
-msgid "Admin login (username)"
-msgstr "Admin login (username)"
+msgid "Tizim"
+msgstr "System"
 
-msgid "Admin paroli"
-msgstr "Admin password"
+msgid "Harakatlar tarixi bo'sh"
+msgstr "Activity history is empty"
 
-msgid "Parolni tasdiqlash"
-msgstr "Confirm password"
+msgid "Kitoblar katalogi"
+msgstr "Book Catalog"
 
-msgid "Tumanlar"
-msgstr "Districts"
+msgid "Barchasi"
+msgstr "All"
 
-msgid "Tumanlar boshqaruvi"
-msgstr "Districts Management"
+msgid "Kitob nomi, muallifi yoki kategoriyasi..."
+msgstr "Book title, author or category..."
 
-msgid "Yangi tuman"
-msgstr "New District"
+msgid "Qidirish"
+msgstr "Search"
 
-msgid "Hozircha tumanlar mavjud emas"
-msgstr "No districts available yet"
+msgid "O'qilmoqda"
+msgstr "Reading"
 
-msgid "Davlat muassasalari va tashkilotlar"
-msgstr "Government Institutions and Organizations"
+msgid "Batafsil"
+msgstr "Details"
 
-msgid "Yangi muassasa"
-msgstr "New Institution"
+msgid "Hozircha kitoblar topilmadi"
+msgstr "No books found yet"
 
-msgid "Hozircha muassasalar mavjud emas"
-msgstr "No institutions added yet"
+msgid "Kitob haqida ma'lumot"
+msgstr "Book Information"
 
-msgid "Yangi Admin (Kutubxonachi)"
-msgstr "New Admin (Librarian)"
+msgid "Kategoriyasiz"
+msgstr "No Category"
 
-msgid "A'zo bo'lgan sana"
-msgstr "Joined Date"
+msgid "marta o'qilgan"
+msgstr "times read"
 
-msgid "ID raqam"
-msgstr "ID Number"
+msgid "Tavsif"
+msgstr "Description"
 
-msgid "Mening profilim"
-msgstr "My Profile"
+msgid "Kitobni bron qilish"
+msgstr "Reserve Book"
 
-msgid "Parolni o'zgartirish"
-msgstr "Change Password"
+msgid "Navbatga turish"
+msgstr "Join Queue"
 
-msgid "Tizim administratori"
-msgstr "System Administrator"
+msgid "O'qilayotganlar"
+msgstr "Active Loans"
 
-msgid "Profil"
-msgstr "Profile"
+msgid "Tarix"
+msgstr "History"
 
-msgid "Maktab biriktirilmagan"
-msgstr "School not assigned"
+msgid "Mening kitoblarim"
+msgstr "My Books"
 
-msgid "Ma'lumotlarni tahrirlash"
-msgstr "Edit Information"
+msgid "Hozir o'qilayotgan kitoblar"
+msgstr "Currently Reading"
 
-msgid "Maktab ID"
-msgstr "School ID"
+msgid "Olingan sana"
+msgstr "Issued Date"
 
-msgid "Roli"
-msgstr "Role"
+msgid "Muddat"
+msgstr "Period"
 
-msgid "Barcha maktablar"
-msgstr "All Schools"
+msgid "kun"
+msgstr "days"
 
+msgid "Qolgan vaqt"
+msgstr "Time Left"
 
+msgid "O'qish"
+msgstr "Read"
 
+msgid "Topshirish"
+msgstr "Return"
+
+msgid "Hozircha sizda olingan kitoblar yo'q"
+msgstr "You have no borrowed books yet"
+
+msgid "Bron qilingan (kutilmoqda)"
+msgstr "Reserved (Pending)"
+
+msgid "So'ralgan sana"
+msgstr "Requested Date"
+
+msgid "Holati"
+msgstr "Status"
+
+msgid "QR ko'rsatish"
+msgstr "Show QR"
+
+msgid "Bron qilingan kitoblar yo'q"
+msgstr "No reserved books"
+
+msgid "O'qish tarixi"
+msgstr "Reading History"
+
+msgid "Qaytarilgan"
+msgstr "Returned"
+
+msgid "Tugatildi"
+msgstr "Completed"
+
+msgid "Yana o'qish"
+msgstr "Read Again"
+
+msgid "Siz hali kitob o'qib bo'lmagansiz"
+msgstr "You haven't finished any books yet"
