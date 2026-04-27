@@ -5,15 +5,7 @@
 {% block page_title %}{% trans "Kitob haqida ma'lumot" %}{% endblock %}
 
 {% block sidebar_nav %}
-<a href="{% url 'frontend_user:library' %}" class="nav-link">
-    <i class="fas fa-book"></i> <span>{% trans "Kutubxona" %}</span>
-</a>
-<a href="{% url 'frontend_user:my_books' %}" class="nav-link">
-    <i class="fas fa-bookmark"></i> <span>{% trans "Mening kitoblarim" %}</span>
-</a>
-<a href="{% url 'frontend_user:profile' %}" class="nav-link">
-    <i class="fas fa-user"></i> <span>{% trans "Profil" %}</span>
-</a>
+{% include 'user_panel/sidebar_items.html' %}
 {% endblock %}
 
 {% block content %}

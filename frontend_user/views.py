@@ -21,10 +21,15 @@ def library(request):
     # Get all categories for quick filters
     categories = Category.objects.all()
         
+    # Get latest news
+    from frontend_school.models import News
+    latest_news = News.objects.filter(school=request.user.school, is_published=True).order_by('-created_at')[:3]
+        
     return render(request, 'user_panel/library.html', {
         'books': books,
         'categories': categories,
-        'current_query': query or ''
+        'current_query': query or '',
+        'latest_news': latest_news
     })
 
 @login_required(login_url='login')
@@ -41,8 +46,14 @@ def my_books(request):
     })
 
 @login_required(login_url='login')
+def news_list(request):
+    from frontend_school.models import News
+    news = News.objects.filter(school=request.user.school, is_published=True).order_by('-created_at')
+    return render(request, 'user_panel/news.html', {'news_list': news})
+
+@login_required(login_url='login')
 def profile(request):
-    if request.user.role == 'school_admin':
+    if request.user.role in ['school_admin', 'teacher']:
         return redirect('frontend_school:profile')
     if request.user.role == 'superuser' or request.user.is_superuser:
         return redirect('frontend_admin:profile')

@@ -33,7 +33,8 @@ def schools_list(request):
         schools = schools.filter(district_id=district_id)
         
     schools = schools.order_by('-id')
-    districts = District.objects.all().order_by('name')
+    from django.db.models import Count
+    districts = District.objects.annotate(school_count=Count('schools')).order_by('name')
     
     return render(request, 'admin_panel/schools.html', {
         'schools': schools,

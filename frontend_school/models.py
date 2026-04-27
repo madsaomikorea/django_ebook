@@ -4,6 +4,7 @@ class News(models.Model):
     school = models.ForeignKey('schools.School', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     body = models.TextField()
+    image = models.ImageField(upload_to='news_images/', null=True, blank=True)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

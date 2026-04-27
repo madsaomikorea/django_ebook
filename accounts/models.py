@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
-        ('superuser', 'Superuser'),
-        ('school_admin', 'School Admin'),
-        ('student', 'Student'),
-        ('teacher', 'Teacher'),
+        ('superuser', _('Superuser')),
+        ('school_admin', _('School Admin')),
+        ('student', _('Student')),
+        ('teacher', _('Teacher')),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     school = models.ForeignKey('schools.School', on_delete=models.SET_NULL, null=True, blank=True)

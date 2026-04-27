@@ -20,6 +20,4 @@
 <a href="{% url 'frontend_admin:all_users_list' %}" class="nav-link {% if request.resolver_match.url_name == 'all_users_list' %}active{% endif %}">
     <i class="fas fa-users"></i> <span>{% trans "Foydalanuvchilar" %}</span>
 </a>
-<a href="{% url 'frontend_admin:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-    <i class="fas fa-user-shield"></i> <span>{% trans "Profil" %}</span>
-</a>
+

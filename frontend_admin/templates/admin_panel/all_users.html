@@ -43,7 +43,9 @@
                     <td style="padding: 15px; color: var(--text-muted);">{{ user.date_joined|date:"Y-m-d H:i" }}</td>
                     <td style="padding: 15px;">
                         {% if user.role == 'school_admin' %}
-                        <a href="{% url 'frontend_admin:admin_edit' user.pk %}" style="color: var(--secondary);"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'frontend_admin:admin_edit' user.pk %}" class="glass-card" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.25); transition: 0.3s;" title="{% trans 'Tahrirlash' %}">
+                            <i class="fas fa-edit"></i>
+                        </a>
                         {% endif %}
                     </td>
                 </tr>

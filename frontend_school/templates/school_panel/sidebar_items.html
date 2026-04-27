@@ -23,6 +23,4 @@
 <a href="{% url 'frontend_school:news_list' %}" class="nav-link {% if 'news' in request.resolver_match.url_name %}active{% endif %}">
     <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
 </a>
-<a href="{% url 'frontend_school:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'change_password' %}active{% endif %}">
-    <i class="fas fa-user-cog"></i> <span>{% trans "Profil" %}</span>
-</a>
+

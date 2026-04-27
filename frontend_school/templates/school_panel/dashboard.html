@@ -30,6 +30,11 @@
         <h3 style="font-size: 2rem; margin-bottom: 5px;">{{ available_copies|default:"0" }}</h3>
         <p style="color: var(--text-muted); margin: 0;">{% trans "Qolgan kitoblar" %}</p>
     </a>
+    <a href="{% url 'frontend_school:news_list' %}" class="glass-card animate-fade" style="padding: 30px; text-align: center; border-left: 4px solid #f59e0b; animation-delay: 0.4s; text-decoration: none; display: block; color: inherit; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        <i class="fas fa-newspaper" style="font-size: 2.5rem; color: #f59e0b; margin-bottom: 15px;"></i>
+        <h3 style="font-size: 2rem; margin-bottom: 5px;">{{ news_count|default:"0" }}</h3>
+        <p style="color: var(--text-muted); margin: 0;">{% trans "Yangiliklar" %}</p>
+    </a>
 </div>
 
 <div class="responsive-grid-2 stats-row" style="margin-bottom: 30px;">

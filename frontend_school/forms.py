@@ -91,9 +91,8 @@ class StudentForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'birth_date', 'password']
+        fields = ['first_name', 'last_name', 'birth_date', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -102,7 +101,6 @@ class StudentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].required = False
         self.fields['password'].required = False
         if self.instance and self.instance.grade:
             # Try to split "7A" into "7" and "A"
@@ -113,11 +111,11 @@ class StudentForm(forms.ModelForm):
                 self.fields['grade_letter'].initial = match.group(2)
         
         from django.utils.translation import gettext_lazy as _
-        self.fields['username'].label = _("Foydalanuvchi nomi")
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
         self.fields['birth_date'].label = _("Tug'ilgan sana")
         self.fields['password'].label = _("Parol")
+
     def clean_first_name(self):
         name = self.cleaned_data.get('first_name')
         validate_char_limit(name, 50)
@@ -125,11 +123,6 @@ class StudentForm(forms.ModelForm):
 
     def clean_last_name(self):
         name = self.cleaned_data.get('last_name')
-        validate_char_limit(name, 50)
-        return name
-
-    def clean_username(self):
-        name = self.cleaned_data.get('username')
         validate_char_limit(name, 50)
         return name
 
@@ -145,9 +138,8 @@ class StudentForm(forms.ModelForm):
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'birth_date', 'subject', 'address', 'password']
+        fields = ['first_name', 'last_name', 'birth_date', 'subject', 'address', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -158,10 +150,8 @@ class TeacherForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].required = False
         self.fields['password'].required = False
         from django.utils.translation import gettext_lazy as _
-        self.fields['username'].label = _("Foydalanuvchi nomi")
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
         self.fields['birth_date'].label = _("Tug'ilgan sana")
@@ -194,10 +184,11 @@ class TeacherForm(forms.ModelForm):
 class NewsForm(forms.ModelForm):
     class Meta:
         model = News
-        fields = ['title', 'body', 'is_published']
+        fields = ['title', 'body', 'image', 'is_published']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '150', 'data-limit-words': '20'}),
             'body': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'data-limit-words': '1000'}),
+            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
     def clean_title(self):

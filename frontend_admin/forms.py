@@ -17,12 +17,12 @@ def validate_char_limit(value, limit):
 class SchoolForm(forms.ModelForm):
     class Meta:
         model = School
-        fields = ['name', 'address', 'contact', 'district']
+        fields = ['district', 'name', 'address', 'contact']
         widgets = {
+            'district': forms.Select(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '150'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '255'}),
             'contact': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '100'}),
-            'district': forms.Select(attrs={'class': 'form-control'}),
         }
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -104,13 +104,15 @@ class UnifiedSchoolForm(forms.ModelForm):
 
     class Meta:
         model = School
-        fields = ['name', 'address', 'contact', 'district']
+        fields = ['district', 'name', 'address', 'contact']
         widgets = {
+            'district': forms.Select(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control'}),
             'contact': forms.TextInput(attrs={'class': 'form-control'}),
-            'district': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    field_order = ['district', 'name', 'address', 'contact', 'admin_username', 'admin_password', 'admin_password_confirm']
 
     def clean_admin_username(self):
         username = self.cleaned_data.get('admin_username')

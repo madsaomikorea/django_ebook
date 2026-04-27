@@ -5,23 +5,47 @@
 {% block page_title %}{% trans "Kitoblar katalogi" %}{% endblock %}
 
 {% block sidebar_nav %}
-<a href="{% url 'frontend_user:library' %}" class="nav-link active">
-    <i class="fas fa-book"></i> <span>{% trans "Kutubxona" %}</span>
-</a>
-<a href="{% url 'frontend_user:my_books' %}" class="nav-link">
-    <i class="fas fa-bookmark"></i> <span>{% trans "Mening kitoblarim" %}</span>
-</a>
-<a href="{% url 'frontend_user:profile' %}" class="nav-link">
-    <i class="fas fa-user"></i> <span>{% trans "Profil" %}</span>
-</a>
+{% include 'user_panel/sidebar_items.html' %}
 {% endblock %}
 
 {% block content %}
+{% if latest_news %}
+<div class="news-ticker animate-fade" style="margin-bottom: 30px;">
+    <div style="display: flex; align-items: center; gap: 15px; background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.2); padding: 15px 25px; border-radius: 20px; color: var(--primary);">
+        <i class="fas fa-bullhorn" style="font-size: 1.2rem; animation: pulse 2s infinite;"></i>
+        <div style="flex-grow: 1; overflow: hidden;">
+            <div style="display: flex; gap: 40px; animation: ticker 30s linear infinite; white-space: nowrap;">
+                {% for item in latest_news %}
+                <a href="{% url 'frontend_user:news_list' %}" style="color: inherit; text-decoration: none; font-weight: 600;">
+                    <span style="opacity: 0.7; margin-right: 10px;">{{ item.created_at|date:"d.m" }}</span>
+                    {{ item.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <a href="{% url 'frontend_user:news_list' %}" style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); text-decoration: none; border-bottom: 2px solid var(--primary);">
+            {% trans "Barchasi" %}
+        </a>
+    </div>
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+    </style>
+</div>
+{% endif %}
+
 <div class="glass-panel" style="padding: 25px; margin-bottom: 35px; border-radius: 24px;">
     <form method="get" style="display: flex; gap: 12px; margin-bottom: 20px;">
         <div style="flex-grow: 1; position: relative;">
             <i class="fas fa-search" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem;"></i>
-            <input type="text" name="q" value="{{ current_query }}" class="form-control" placeholder="{% trans "Kitob nomi, muallifi yoki kategoriyasi..." %}" style="padding: 18px 18px 18px 55px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); font-size: 1rem;">
+            <input type="text" name="q" value="{{ current_query }}" class="form-control" placeholder="{% trans 'Kitob nomi, muallifi yoki kategoriyasi...' %}" style="padding: 18px 18px 18px 55px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); font-size: 1rem;">
         </div>
         <button type="submit" class="btn-primary" style="padding: 0 40px; border-radius: 16px; font-weight: 700; box-shadow: 0 10px 20px var(--primary-glow);">{% trans "Qidirish" %}</button>
     </form>

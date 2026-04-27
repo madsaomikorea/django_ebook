@@ -13,6 +13,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 import secrets
 import string
+from .models import News
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -31,6 +32,7 @@ def dashboard(request):
             'available_copies': stats['available_copies'] or 0,
             'issued_count': BookIssue.objects.filter(book__school=school, is_returned=False).count(),
             'recent_activities': recent_activities,
+            'news_count': News.objects.filter(school=school).count(),
         }
     return render(request, 'school_panel/dashboard.html', context)
 
@@ -126,7 +128,6 @@ def history_list(request):
 
 @login_required(login_url='login')
 def news_list(request):
-    from .models import News
     school = request.user.school
     news = News.objects.filter(school=school).order_by('-created_at')
     return render(request, 'school_panel/news.html', {'news': news})
@@ -309,13 +310,10 @@ def student_add(request):
             student.school = request.user.school
             student.role = 'student'
             
-            # Generate username if not provided
-            if not student.username:
-                # Format: s[school_id]_[grade]_[random4]
-                school_id = student.school.id if student.school else 0
-                grade_slug = student.grade.lower().replace(' ', '')
-                random_suffix = get_random_string(4, allowed_chars=string.ascii_lowercase + string.digits)
-                student.username = f"s{school_id}_{grade_slug}_{random_suffix}"
+            # Auto-generate username based on school ID
+            school_id = student.school.id if student.school else 0
+            random_suffix = get_random_string(5, allowed_chars=string.ascii_lowercase + string.digits)
+            student.username = f"s{school_id}_{random_suffix}"
             
             # Generate random password if not provided
             password = form.cleaned_data.get('password')
@@ -361,12 +359,10 @@ def teacher_add(request):
             teacher.school = request.user.school
             teacher.role = 'teacher'
             
-            # Generate username if not provided
-            if not teacher.username:
-                # Format: t[school_id]_[random4]
-                school_id = teacher.school.id if teacher.school else 0
-                random_suffix = get_random_string(4, allowed_chars=string.ascii_lowercase + string.digits)
-                teacher.username = f"t{school_id}_{random_suffix}"
+            # Auto-generate username based on school ID
+            school_id = teacher.school.id if teacher.school else 0
+            random_suffix = get_random_string(5, allowed_chars=string.ascii_lowercase + string.digits)
+            teacher.username = f"t{school_id}_{random_suffix}"
             
             # Generate random password if not provided
             password = form.cleaned_data.get('password')
@@ -405,9 +401,8 @@ def teacher_delete(request, pk):
 
 @login_required(login_url='login')
 def news_add(request):
-    from .models import News
     if request.method == 'POST':
-        form = NewsForm(request.POST)
+        form = NewsForm(request.POST, request.FILES)
         if form.is_valid():
             news = form.save(commit=False)
             news.school = request.user.school
@@ -419,10 +414,9 @@ def news_add(request):
 
 @login_required(login_url='login')
 def news_edit(request, pk):
-    from .models import News
     news = get_object_or_404(News, pk=pk, school=request.user.school)
     if request.method == 'POST':
-        form = NewsForm(request.POST, instance=news)
+        form = NewsForm(request.POST, request.FILES, instance=news)
         if form.is_valid():
             form.save()
             return redirect('frontend_school:news_list')
@@ -432,7 +426,6 @@ def news_edit(request, pk):
 
 @login_required(login_url='login')
 def news_delete(request, pk):
-    from .models import News
     news = get_object_or_404(News, pk=pk, school=request.user.school)
     if request.method == 'POST':
         news.delete()
