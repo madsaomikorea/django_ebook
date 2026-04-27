@@ -91,16 +91,19 @@ class StudentForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'password']
+        fields = ['username', 'first_name', 'last_name', 'birth_date', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['username'].required = False
+        self.fields['password'].required = False
         if self.instance and self.instance.grade:
             # Try to split "7A" into "7" and "A"
             import re
@@ -113,6 +116,7 @@ class StudentForm(forms.ModelForm):
         self.fields['username'].label = _("Foydalanuvchi nomi")
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
+        self.fields['birth_date'].label = _("Tug'ilgan sana")
         self.fields['password'].label = _("Parol")
     def clean_first_name(self):
         name = self.cleaned_data.get('first_name')
@@ -141,22 +145,28 @@ class StudentForm(forms.ModelForm):
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'subject', 'password']
+        fields = ['username', 'first_name', 'last_name', 'birth_date', 'subject', 'address', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
+            'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '100', 'list': 'subject-list', 'autocomplete': 'off'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Yashash manzili'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['username'].required = False
+        self.fields['password'].required = False
         from django.utils.translation import gettext_lazy as _
         self.fields['username'].label = _("Foydalanuvchi nomi")
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
+        self.fields['birth_date'].label = _("Tug'ilgan sana")
         self.fields['subject'].label = _("Fan")
+        self.fields['address'].label = _("Yashash manzili")
         self.fields['password'].label = _("Parol")
         
         from schools.models import Subject

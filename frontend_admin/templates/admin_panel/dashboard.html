@@ -26,6 +26,9 @@
 <a href="{% url 'frontend_admin:all_users_list' %}" class="nav-link">
     <i class="fas fa-users"></i> <span>{% trans "Foydalanuvchilar" %}</span>
 </a>
+<a href="{% url 'frontend_admin:profile' %}" class="nav-link">
+    <i class="fas fa-user-shield"></i> <span>{% trans "Profil" %}</span>
+</a>
 {% endblock %}
 
 {% block content %}
@@ -100,6 +103,42 @@
                 <tr>
                     <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">
                         {% trans "Hozircha maktablar qo'shilmagan" %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="glass-panel animate-fade" style="padding: 30px; animation-delay: 0.5s; margin-top: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h3><i class="fas fa-list-ul" style="color: var(--secondary); margin-right: 10px;"></i> {% trans "Oxirgi harakatlar" %}</h3>
+        <a href="{% url 'frontend_admin:system_logs' %}" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">{% trans "Barchasini ko'rish" %}</a>
+    </div>
+    
+    <div class="table-container" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Vaqt" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Foydalanuvchi" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Amal" %}</th>
+                    <th style="padding: 15px; color: var(--text-muted); font-weight: 500;">{% trans "Xabar" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                    <td style="padding: 15px; color: var(--text-muted); font-size: 0.85rem;">{{ log.created_at|date:"d.m.Y H:i" }}</td>
+                    <td style="padding: 15px; font-weight: 500;">{{ log.user.username|default:"Tizim" }}</td>
+                    <td style="padding: 15px;"><span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">{{ log.action_type }}</span></td>
+                    <td style="padding: 15px; color: var(--text-muted);">{{ log.message }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                        {% trans "Harakatlar tarixi bo'sh" %}
                     </td>
                 </tr>
                 {% endfor %}

@@ -7,6 +7,12 @@ from accounts.models import CustomUser
 from books.models import Book, BookIssue
 
 from django.db.models import Sum
+from django.utils.crypto import get_random_string
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+import secrets
+import string
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -43,7 +49,7 @@ def students_list(request):
             Q(grade__icontains=query)
         )
         
-    students = students.order_by('grade', 'username')
+    students = students.order_by('last_name', 'first_name')
     return render(request, 'school_panel/students.html', {'students': students, 'query': query})
 
 @login_required(login_url='login')
@@ -60,7 +66,7 @@ def teachers_list(request):
             Q(last_name__icontains=query)
         )
         
-    teachers = teachers.order_by('username')
+    teachers = teachers.order_by('last_name', 'first_name')
     return render(request, 'school_panel/teachers.html', {'teachers': teachers, 'query': query})
 
 @login_required(login_url='login')
@@ -285,7 +291,22 @@ def student_add(request):
             student = form.save(commit=False)
             student.school = request.user.school
             student.role = 'student'
-            student.set_password(form.cleaned_data['password'])
+            
+            # Generate username if not provided
+            if not student.username:
+                # Format: s[school_id]_[grade]_[random4]
+                school_id = student.school.id if student.school else 0
+                grade_slug = student.grade.lower().replace(' ', '')
+                random_suffix = get_random_string(4, allowed_chars=string.ascii_lowercase + string.digits)
+                student.username = f"s{school_id}_{grade_slug}_{random_suffix}"
+            
+            # Generate random password if not provided
+            password = form.cleaned_data.get('password')
+            if not password:
+                password = get_random_string(12)
+                messages.success(request, f"Yangi o'quvchi uchun parol: {password}")
+            
+            student.set_password(password)
             student.save()
             return redirect('frontend_school:students_list')
     else:
@@ -322,7 +343,21 @@ def teacher_add(request):
             teacher = form.save(commit=False)
             teacher.school = request.user.school
             teacher.role = 'teacher'
-            teacher.set_password(form.cleaned_data['password'])
+            
+            # Generate username if not provided
+            if not teacher.username:
+                # Format: t[school_id]_[random4]
+                school_id = teacher.school.id if teacher.school else 0
+                random_suffix = get_random_string(4, allowed_chars=string.ascii_lowercase + string.digits)
+                teacher.username = f"t{school_id}_{random_suffix}"
+            
+            # Generate random password if not provided
+            password = form.cleaned_data.get('password')
+            if not password:
+                password = get_random_string(12)
+                messages.success(request, f"Yangi o'qituvchi uchun parol: {password}")
+            
+            teacher.set_password(password)
             teacher.save()
             return redirect('frontend_school:teachers_list')
     else:
@@ -386,3 +421,20 @@ def news_delete(request, pk):
         news.delete()
         return redirect('frontend_school:news_list')
     return render(request, 'school_panel/confirm_delete.html', {'object': news, 'type': 'yangilikni'})
+
+@login_required(login_url='login')
+def profile(request):
+    return render(request, 'school_panel/profile.html')
+
+@login_required(login_url='login')
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
+            return redirect('frontend_school:profile')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'school_panel/password_change.html', {'form': form})

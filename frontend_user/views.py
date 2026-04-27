@@ -9,7 +9,7 @@ from django.contrib import messages
 @login_required(login_url='login')
 def library(request):
     query = request.GET.get('q')
-    books = Book.objects.all().order_by('-borrow_count')
+    books = Book.objects.filter(school=request.user.school).order_by('-borrow_count')
     
     if query:
         books = books.filter(
@@ -42,6 +42,10 @@ def my_books(request):
 
 @login_required(login_url='login')
 def profile(request):
+    if request.user.role == 'school_admin':
+        return redirect('frontend_school:profile')
+    if request.user.role == 'superuser' or request.user.is_superuser:
+        return redirect('frontend_admin:profile')
     return render(request, 'user_panel/profile.html')
 
 @login_required(login_url='login')

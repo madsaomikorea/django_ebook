@@ -25,4 +25,6 @@ urlpatterns = [
     path('active-loans/', views.all_active_loans_list, name='all_active_loans_list'),
     path('admin/add/', views.admin_add, name='admin_add'),
     path('admin/<int:pk>/edit/', views.admin_edit, name='admin_edit'),
+    path('profile/', views.profile, name='profile'),
+    path('profile/password/', views.change_password, name='change_password'),
 ]

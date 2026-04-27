@@ -48,6 +48,7 @@
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                     <th style="padding: 15px;">{% trans "Login" %}</th>
                     <th style="padding: 15px;">{% trans "Ism (F.I.SH)" %}</th>
+                    <th style="padding: 15px;">{% trans "Tug'ilgan sana" %}</th>
                     <th style="padding: 15px;">{% trans "Sinf" %}</th>
                     <th style="padding: 15px;">{% trans "Amallar" %}</th>
                 </tr>
@@ -57,6 +58,7 @@
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 15px;">{{ student.username }}</td>
                     <td style="padding: 15px;">{{ student.first_name }} {{ student.last_name }}</td>
+                    <td style="padding: 15px; color: var(--text-muted);">{{ student.birth_date|date:"d.m.Y"|default:"—" }}</td>
                     <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{{ student.grade }}</span></td>
                     <td style="padding: 15px;">
                         <a href="{% url 'frontend_school:student_edit' student.pk %}" style="color: var(--primary); margin-right: 15px;"><i class="fas fa-edit"></i></a>

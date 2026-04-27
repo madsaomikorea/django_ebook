@@ -6,6 +6,7 @@ from books.models import Book, BookIssue
 
 @login_required(login_url='login')
 def dashboard(request):
+    from stats.models import ActionLog
     context = {
         'school_count': School.objects.count(),
         'user_count': CustomUser.objects.count(),
@@ -13,6 +14,7 @@ def dashboard(request):
         'active_loans': BookIssue.objects.filter(is_returned=False).count(),
         'schools': School.objects.all().order_by('-id')[:5],
         'institutions_count': Institution.objects.count(),
+        'recent_logs': ActionLog.objects.all().order_by('-created_at')[:10],
     }
     return render(request, 'admin_panel/dashboard.html', context)
 
@@ -232,3 +234,23 @@ def admin_edit(request, pk):
     else:
         form = SchoolAdminForm(instance=admin)
     return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': 'Admin ma\'lumotlarini tahrirlash'})
+
+@login_required(login_url='login')
+def profile(request):
+    return render(request, 'admin_panel/profile.html')
+
+@login_required(login_url='login')
+def change_password(request):
+    from django.contrib.auth.forms import PasswordChangeForm
+    from django.contrib.auth import update_session_auth_hash
+    from django.contrib import messages
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
+            return redirect('frontend_admin:profile')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'admin_panel/password_change.html', {'form': form})
