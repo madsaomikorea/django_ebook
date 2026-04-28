@@ -9,12 +9,13 @@ class CustomUser(AbstractUser):
         ('student', _('Student')),
         ('teacher', _('Teacher')),
     )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
-    school = models.ForeignKey('schools.School', on_delete=models.SET_NULL, null=True, blank=True)
-    grade = models.CharField(max_length=10, null=True, blank=True)  # класс для ученика
-    subject = models.CharField(max_length=100, null=True, blank=True) # предмет для учителя
-    birth_date = models.DateField(null=True, blank=True)
-    address = models.CharField(max_length=255, null=True, blank=True)
+    role = models.CharField(_("Rol"), max_length=20, choices=ROLE_CHOICES, default='student')
+    school = models.ForeignKey('schools.School', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Maktab"))
+    grade = models.CharField(_("Sinf"), max_length=10, null=True, blank=True)
+    subject = models.CharField(_("Fan"), max_length=100, null=True, blank=True)
+    birth_date = models.DateField(_("Tug'ilgan sana"), null=True, blank=True)
+    address = models.CharField(_("Yashash manzili"), max_length=255, null=True, blank=True)
+
 
     def save(self, *args, **kwargs):
         if self.is_superuser and self.role != 'superuser':

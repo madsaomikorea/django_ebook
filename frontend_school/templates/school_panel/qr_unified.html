@@ -271,7 +271,7 @@
 
         html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
         .catch(err => {
-            alert("Kamera xatoligi: " + err);
+            alert("{% trans 'Kamera xatoligi:' %} " + err);
             placeholder.style.display = 'flex';
             readerContainer.style.display = 'none';
             startBtn.disabled = false;

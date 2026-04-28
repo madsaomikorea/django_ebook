@@ -4,6 +4,14 @@
 {% block title %}{% trans "Kitoblar tarixi" %} | Online Kutibxona{% endblock %}
 {% block page_title %}{% trans "Kitobxonlik tarixi" %}{% endblock %}
 
+{% block extra_head %}
+<style>
+    .returned-row {
+        opacity: 0.85;
+    }
+</style>
+{% endblock %}
+
 {% block sidebar_nav %}
 {% include 'school_panel/sidebar_items.html' %}
 {% endblock %}
@@ -36,7 +44,7 @@
             </thead>
             <tbody>
                 {% for issue in history %}
-                <tr class="glass-card" style="transition: 0.3s; opacity: {% if issue.is_returned %}0.85{% else %}1{% endif %};">
+                <tr class="glass-card {% if issue.is_returned %}returned-row{% endif %}" style="transition: 0.3s;">
                     <td style="padding: 15px 20px; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="width: 40px; height: 55px; background: rgba(255,255,255,0.05); border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
@@ -55,13 +63,13 @@
                     <td style="padding: 15px 20px;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-weight: 500;">{{ issue.user.get_full_name|default:issue.user.username }}</span>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">ID: {{ issue.user.username }}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">{% trans "ID:" %} {{ issue.user.username }}</span>
                         </div>
                     </td>
                     <td style="padding: 15px 20px;">
                         {% if issue.user.role == 'student' %}
                             <span style="padding: 4px 10px; background: rgba(99, 102, 241, 0.1); color: var(--primary); border-radius: 15px; font-size: 0.8rem;">
-                                {{ issue.user.grade|default:"Sinf ko'rsatilmagan" }}
+                                {% if issue.user.grade %}{{ issue.user.grade }}{% else %}{% trans "Sinf ko'rsatilmagan" %}{% endif %}
                             </span>
                         {% elif issue.user.role == 'teacher' %}
                             <span style="padding: 4px 10px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 15px; font-size: 0.8rem;">

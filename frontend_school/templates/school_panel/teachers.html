@@ -5,24 +5,7 @@
 {% block page_title %}{% trans "O'qituvchilar ro'yxati" %}{% endblock %}
 
 {% block sidebar_nav %}
-<a href="{% url 'frontend_school:dashboard' %}" class="nav-link">
-    <i class="fas fa-chart-line"></i> <span>{% trans "Dashboard" %}</span>
-</a>
-<a href="{% url 'frontend_school:qr_scanner' %}" class="nav-link">
-    <i class="fas fa-qrcode"></i> <span>{% trans "QR Skaner" %}</span>
-</a>
-<a href="{% url 'frontend_school:students_list' %}" class="nav-link">
-    <i class="fas fa-users"></i> <span>{% trans "O'quvchilar" %}</span>
-</a>
-<a href="{% url 'frontend_school:teachers_list' %}" class="nav-link active">
-    <i class="fas fa-chalkboard-teacher"></i> <span>{% trans "O'qituvchilar" %}</span>
-</a>
-<a href="{% url 'frontend_school:books_list' %}" class="nav-link">
-    <i class="fas fa-book"></i> <span>{% trans "Kitoblar" %}</span>
-</a>
-<a href="{% url 'frontend_school:news_list' %}" class="nav-link">
-    <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
-</a>
+{% include 'school_panel/sidebar_items.html' %}
 {% endblock %}
 
 {% block content %}
@@ -60,7 +43,7 @@
                     <td style="padding: 15px;">{{ teacher.username }}</td>
                     <td style="padding: 15px;">{{ teacher.first_name }} {{ teacher.last_name }}</td>
                     <td style="padding: 15px; color: var(--text-muted);">{{ teacher.birth_date|date:"d.m.Y"|default:"—" }}</td>
-                    <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{{ teacher.subject|default:"O'qituvchi" }}</span></td>
+                    <td style="padding: 15px;"><span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">{% if teacher.subject %}{% trans teacher.subject %}{% else %}{% trans "O'qituvchi" %}{% endif %}</span></td>
                     <td style="padding: 15px; color: var(--text-muted); font-size: 0.85rem;">{{ teacher.address|default:"—" }}</td>
                     <td style="padding: 15px;">
                         <a href="{% url 'frontend_school:teacher_edit' teacher.pk %}" style="color: var(--secondary); margin-right: 15px;"><i class="fas fa-edit"></i></a>

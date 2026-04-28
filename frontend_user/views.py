@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
+from django.utils.translation import gettext as _
 
 @login_required(login_url='login')
 def library(request):
@@ -76,7 +77,7 @@ def change_password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
+            messages.success(request, _('Parolingiz muvaffaqiyatli o\'zgartirildi!'))
             return redirect('frontend_user:profile')
     else:
         form = PasswordChangeForm(request.user)

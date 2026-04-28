@@ -66,10 +66,10 @@
                 {% for school in schools %}
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 15px;">#{{ school.id|stringformat:"03d" }}</td>
-                    <td style="padding: 15px; font-weight: 600;">{{ school.name }}</td>
+                    <td style="padding: 15px; font-weight: 600;">{% trans school.name %}</td>
                     <td style="padding: 15px;">
                         <a href="?district={{ school.district.id }}" class="district-link">
-                            {{ school.district.name|default:"—" }}
+                            {% if school.district %}{% trans school.district.name %}{% else %}—{% endif %}
                         </a>
                     </td>
                     <td style="padding: 15px;">
@@ -86,7 +86,7 @@
                     <td style="padding: 15px;">
                         <div style="display: flex; gap: 12px;">
                             <a href="{% url 'frontend_admin:school_detail' school.pk %}" class="glass-card" style="padding: 8px 18px; border-radius: 20px; display: flex; align-items: center; gap: 8px; color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.3s;" title="{% trans 'Ko\'rish' %}">
-                                {% trans "View" %} <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+                                {% trans "Ko'rish" %} <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
                             </a>
                             <a href="{% url 'frontend_admin:school_edit' school.pk %}" class="glass-card" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.25); transition: 0.3s;" title="{% trans 'Tahrirlash' %}">
                                 <i class="fas fa-edit"></i>

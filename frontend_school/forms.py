@@ -9,12 +9,12 @@ def validate_word_limit(value, limit):
     if not value: return
     words = value.split()
     if len(words) > limit:
-        raise ValidationError(_(f"Limit: {limit} ta so'z. Siz {len(words)} ta so'z kiritdingiz."))
+        raise ValidationError(_("Limit: %(limit)s ta so'z. Siz %(count)s ta so'z kiritdingiz.") % {'limit': limit, 'count': len(words)})
 
 def validate_char_limit(value, limit):
     if not value: return
     if len(value) > limit:
-        raise ValidationError(_(f"Limit: {limit} ta belgi. Siz {len(value)} ta belgi kiritdingiz."))
+        raise ValidationError(_("Limit: %(limit)s ta belgi. Siz %(count)s ta belgi kiritdingiz.") % {'limit': limit, 'count': len(value)})
 
 class BookForm(forms.ModelForm):
     category_name = forms.CharField(
@@ -96,7 +96,7 @@ class StudentForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _("Bo'sh qoldirilsa, avtomatik yaratiladi")}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -144,8 +144,8 @@ class TeacherForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '100', 'list': 'subject-list', 'autocomplete': 'off'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Yashash manzili'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _("Yashash manzili")}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _("Bo'sh qoldirilsa, avtomatik yaratiladi")}),
         }
 
     def __init__(self, *args, **kwargs):

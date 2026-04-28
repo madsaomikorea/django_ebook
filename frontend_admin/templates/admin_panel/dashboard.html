@@ -108,7 +108,7 @@
                 {% for log in recent_logs %}
                 <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
                     <td style="padding: 15px; color: var(--text-muted); font-size: 0.85rem;">{{ log.created_at|date:"d.m.Y H:i" }}</td>
-                    <td style="padding: 15px; font-weight: 500;">{{ log.user.username|default:"Tizim" }}</td>
+                    <td style="padding: 15px; font-weight: 500;">{% if log.user %}{{ log.user.username }}{% else %}{% trans "Tizim" %}{% endif %}</td>
                     <td style="padding: 15px;"><span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">{{ log.action_type }}</span></td>
                     <td style="padding: 15px; color: var(--text-muted);">{{ log.message }}</td>
                 </tr>

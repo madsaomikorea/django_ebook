@@ -144,6 +144,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
+import django.conf.locale
+from django.conf import global_settings
+
+# Add Karakalpak (kaa) to Django's supported languages info
+EXTRA_LANG_INFO = {
+    'kaa': {
+        'bidi': False, # left-to-right
+        'code': 'kaa',
+        'name': 'Karakalpak',
+        'name_local': 'Qaraqalpaqsha',
+    },
+}
+django.conf.locale.LANG_INFO.update(EXTRA_LANG_INFO)
+
 LANGUAGE_CODE = 'uz'
 
 TIME_ZONE = 'Asia/Tashkent'
@@ -158,6 +172,7 @@ LANGUAGES = [
     ('uz', _('Uzbek')),
     ('ru', _('Russian')),
     ('en', _('English')),
+    ('kaa', _('Qaraqalpaqsha')),
 ]
 
 LOCALE_PATHS = [

@@ -7,12 +7,12 @@ def validate_word_limit(value, limit):
     if not value: return
     words = value.split()
     if len(words) > limit:
-        raise ValidationError(_(f"Limit: {limit} ta so'z. Siz {len(words)} ta so'z kiritdingiz."))
+        raise ValidationError(_("Limit: %(limit)s ta so'z. Siz %(count)s ta so'z kiritdingiz.") % {'limit': limit, 'count': len(words)})
 
 def validate_char_limit(value, limit):
     if not value: return
     if len(value) > limit:
-        raise ValidationError(_(f"Limit: {limit} ta belgi. Siz {len(value)} ta belgi kiritdingiz."))
+        raise ValidationError(_("Limit: %(limit)s ta belgi. Siz %(count)s ta belgi kiritdingiz.") % {'limit': limit, 'count': len(value)})
 
 class SchoolForm(forms.ModelForm):
     class Meta:
@@ -60,7 +60,7 @@ class InstitutionForm(forms.ModelForm):
 from accounts.models import CustomUser
 
 class SchoolAdminForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False, help_text="Yangi foydalanuvchi uchun majburiy. Tahrirlashda bo'sh qoldirsa o'zgarmaydi.")
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False, help_text=_("Yangi foydalanuvchi uchun majburiy. Tahrirlashda bo'sh qoldirsa o'zgarmaydi."))
     
     class Meta:
         model = CustomUser
