@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='news',
             name='school',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='schools.school', verbose_name='Maktab'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='schools.school', verbose_name='Maktab'),
         ),
         migrations.AlterField(
             model_name='news',
