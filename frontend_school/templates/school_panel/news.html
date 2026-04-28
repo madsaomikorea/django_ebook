@@ -21,7 +21,12 @@
         {% for item in news %}
         <div class="glass-card animate-fade" style="padding: 25px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <h4 style="color: var(--primary);">{{ item.title }}</h4>
+                <h4 style="color: var(--primary);">
+                    {{ item.title }}
+                    {% if not item.school %}
+                        <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); font-size: 0.7rem; vertical-align: middle; margin-left: 10px;">{% trans "Tizim xabari" %}</span>
+                    {% endif %}
+                </h4>
                 <span style="font-size: 0.8rem; color: var(--text-muted);">{{ item.created_at|date:"d.m.Y H:i" }}</span>
             </div>
             {% if item.image %}
@@ -30,10 +35,12 @@
             </div>
             {% endif %}
             <p style="color: var(--text-muted); line-height: 1.6;">{{ item.body|truncatewords:30 }}</p>
+            {% if item.school %}
             <div style="margin-top: 15px; display: flex; gap: 15px; justify-content: flex-end;">
                 <a href="{% url 'frontend_school:news_edit' item.pk %}" style="color: #10b981; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-edit"></i> {% trans "Tahrirlash" %}</a>
                 <a href="{% url 'frontend_school:news_delete' item.pk %}" style="color: #ef4444; text-decoration: none; font-size: 0.9rem;"><i class="fas fa-trash"></i> {% trans "O'chirish" %}</a>
             </div>
+            {% endif %}
         </div>
         {% empty %}
         <div style="padding: 40px; text-align: center; color: var(--text-muted);">{% trans "Yangiliklar mavjud emas" %}</div>

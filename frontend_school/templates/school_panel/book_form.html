@@ -7,7 +7,7 @@
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
     <div class="glass-panel animate-fade" style="padding: 40px; border-radius: 24px;">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="book-form">
             {% csrf_token %}
             <div style="display: grid; grid-template-columns: 1fr; gap: 25px;">
                 {% for field in form %}
@@ -21,27 +21,36 @@
                         {% if field.name == 'category_name' %}<i class="fas fa-tags" style="color: #f59e0b; margin-right: 8px;"></i>{% endif %}
                         {{ field.label }}
                     </label>
+                    
                     <div style="display: flex; gap: 10px; align-items: center;">
                         {% if field.name == 'cover' %}
                         <div style="flex-grow: 1; position: relative;">
-                            <!-- Hidden default widget but accessible for JS -->
-                            <div style="opacity: 0; position: absolute; pointer-events: none; width: 0; height: 0; overflow: hidden;">
-                                {{ field }}
-                            </div>
-                            
-                            <div class="custom-cover-controls" style="display: flex; gap: 12px; align-items: center;">
-                                <button type="button" class="btn-custom-upload" onclick="triggerFileUpload(this)" style="padding: 12px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; color: white; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; font-size: 0.9rem;">
-                                    <i class="fas fa-upload"></i>
-                                    <span class="file-name-label">{% trans "Rasm tanlash" %}</span>
-                                </button>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <!-- Upload Button Container -->
+                                <div style="position: relative; overflow: hidden; display: inline-block;">
+                                    <div id="fake-upload-btn" style="padding: 12px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; color: white; display: flex; align-items: center; gap: 10px; transition: 0.3s; font-size: 0.9rem; cursor: pointer;">
+                                        <i class="fas fa-upload"></i>
+                                        <span id="file-name-label">{% trans "Rasm tanlash" %}</span>
+                                    </div>
+                                    <input type="file" name="cover" accept="image/*" id="id_cover" 
+                                           style="position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;"
+                                           onchange="handleFileChange(this)">
+                                </div>
                                 
-                                <button type="button" class="btn-remove-custom" onclick="clearCover(this)" style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 14px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                                <!-- Trash bin -->
+                                <div onclick="showDeleteModal()" 
+                                     class="btn-remove-custom" 
+                                     style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 14px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; z-index: 20; position: relative;">
                                     <i class="fas fa-trash-alt"></i>
-                                </button>
+                                </div>
+                                
+                                <div style="display: none;">
+                                    <input type="checkbox" name="cover-clear" id="cover-clear_id">
+                                </div>
                             </div>
                             
                             {% if field.value %}
-                            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--accent); display: flex; align-items: center; gap: 8px;">
+                            <div id="current-cover-status" style="margin-top: 10px; font-size: 0.8rem; color: var(--accent); display: flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-check-circle"></i>
                                 <span>{% trans "Hozirda oblozhka mavjud" %}</span>
                             </div>
@@ -61,86 +70,18 @@
             </div>
             
             <style>
-                .btn-custom-upload:hover { background: rgba(255,255,255,0.1) !important; border-color: var(--accent) !important; }
+                #fake-upload-btn:hover { background: rgba(255,255,255,0.1) !important; border-color: var(--accent) !important; }
                 .btn-remove-custom:hover { background: rgba(239, 68, 68, 0.2) !important; transform: scale(1.05); }
+                .modal-overlay { z-index: 999999 !important; display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); animation: fadeIn 0.2s ease forwards; }
+                .modal-overlay.closing { animation: fadeOut 0.2s ease forwards; }
+                .modal-content-fixed { background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; text-align: center; max-width: 340px; padding: 30px; margin: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+                .modal-overlay.closing .modal-content-fixed { animation: modalScaleDown 0.2s ease forwards; }
+                
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+                @keyframes modalPop { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+                @keyframes modalScaleDown { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
             </style>
-            
-            <script>
-                function triggerFileUpload(btn) {
-                    const wrapper = btn.closest('.form-group');
-                    // Find the hidden input - Django might render it inside the hidden div
-                    const fileInput = wrapper.querySelector('input[type="file"]');
-                    
-                    if (fileInput) {
-                        fileInput.onchange = function() {
-                            if (this.files && this.files[0]) {
-                                const fileName = this.files[0].name;
-                                const label = wrapper.querySelector('.file-name-label');
-                                if (label) label.innerText = fileName;
-                                
-                                // Success state
-                                btn.style.borderColor = '#10b981';
-                                btn.style.background = 'rgba(16, 185, 129, 0.1)';
-                                btn.querySelector('i').className = 'fas fa-check';
-                                
-                                // Uncheck clear checkbox if it exists (crucial for replacement)
-                                const clearCheckbox = wrapper.querySelector('input[type="checkbox"][name*="-clear"]');
-                                if (clearCheckbox) clearCheckbox.checked = false;
-                            }
-                        };
-                        fileInput.click();
-                    } else {
-                        console.error("File input not found!");
-                    }
-                }
-
-                function clearCover(btn) {
-                    const modal = document.getElementById('confirm-modal');
-                    const confirmBtn = document.getElementById('modal-confirm');
-                    const cancelBtn = document.getElementById('modal-cancel');
-                    
-                    modal.style.display = 'flex';
-                    modal.classList.add('active');
-                    
-                    confirmBtn.onclick = function() {
-                        modal.style.display = 'none';
-                        modal.classList.remove('active');
-                        executeClear(btn);
-                    };
-                    
-                    cancelBtn.onclick = function() {
-                        modal.style.display = 'none';
-                        modal.classList.remove('active');
-                    };
-                }
-
-                function executeClear(btn) {
-                    const wrapper = btn.closest('.form-group');
-                    const fileInput = wrapper.querySelector('input[type="file"]');
-                    const clearCheckbox = wrapper.querySelector('input[type="checkbox"][name*="-clear"]');
-                    const label = wrapper.querySelector('.file-name-label');
-                    const uploadBtn = wrapper.querySelector('.btn-custom-upload');
-                    
-                    if (fileInput) fileInput.value = '';
-                    if (clearCheckbox) clearCheckbox.checked = true;
-                    if (label) label.innerText = '{% trans "O\'chirildi" %}';
-                    
-                    if (uploadBtn) {
-                        uploadBtn.style.borderColor = '#ef4444';
-                        uploadBtn.style.background = 'rgba(239, 68, 68, 0.05)';
-                        uploadBtn.querySelector('i').className = 'fas fa-trash-alt';
-                    }
-                    
-                    setTimeout(() => {
-                        if (label) label.innerText = '{% trans "Rasm tanlash" %}';
-                        if (uploadBtn) {
-                            uploadBtn.style.borderColor = 'var(--border)';
-                            uploadBtn.style.background = 'rgba(255,255,255,0.05)';
-                            uploadBtn.querySelector('i').className = 'fas fa-upload';
-                        }
-                    }, 2000);
-                }
-            </script>
             
             <div style="margin-top: 45px; display: flex; gap: 15px;">
                 <button type="submit" class="btn-primary" style="flex: 2; padding: 18px; border-radius: 16px; font-weight: 700;">
@@ -155,19 +96,19 @@
 </div>
 
 <!-- Custom Confirmation Modal -->
-<div id="confirm-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);">
-    <div class="modal-content glass-panel" style="text-align: center; border-radius: 24px; max-width: 340px; padding: 25px; margin: auto;">
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content-fixed">
         <div style="width: 50px; height: 50px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.2rem;">
             <i class="fas fa-trash-alt"></i>
         </div>
-        <h4 style="margin-bottom: 8px; font-size: 1.1rem;">{% trans "O'chirishni tasdiqlang" %}</h4>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px; line-height: 1.4;">{% trans "Oblozhkani o'chirib tashlamoqchimisiz?" %}</p>
+        <h4 style="margin-bottom: 8px; font-size: 1.1rem; color: white;">{% trans "O'chirishni tasdiqlang" %}</h4>
+        <p style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 25px; line-height: 1.4;">{% trans "Oblozhkani o'chirib tashlamoqchimisiz?" %}</p>
         
         <div style="display: flex; gap: 12px;">
-            <button type="button" id="modal-cancel" class="glass-card" style="flex: 1; padding: 12px; border-radius: 12px; cursor: pointer; color: white; border: 1px solid var(--border); font-size: 0.85rem;">
+            <button type="button" onclick="hideDeleteModal()" class="glass-card" style="flex: 1; padding: 12px; border-radius: 12px; cursor: pointer; color: white; border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; background: rgba(255,255,255,0.05);">
                 {% trans "Bekor" %}
             </button>
-            <button type="button" id="modal-confirm" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; background: #ef4444; border: none; font-size: 0.85rem; font-weight: 600;">
+            <button type="button" onclick="performDelete()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px; background: #ef4444; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: white;">
                 {% trans "O'chirish" %}
             </button>
         </div>
@@ -179,4 +120,78 @@
     <option value="{{ category.name }}">
     {% endfor %}
 </datalist>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function showDeleteModal() {
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.remove('closing');
+        modal.style.display = 'flex';
+    }
+
+    function hideDeleteModal() {
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.classList.remove('closing');
+        }, 200);
+    }
+
+    function handleFileChange(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('file-name-label').innerText = input.files[0].name;
+            const btn = document.getElementById('fake-upload-btn');
+            btn.style.borderColor = '#10b981';
+            btn.style.background = 'rgba(16, 185, 129, 0.1)';
+            btn.querySelector('i').className = 'fas fa-check';
+            
+            const status = document.getElementById('current-cover-status');
+            if (status) status.style.display = 'none';
+            
+            const clearCheck = document.getElementById('cover-clear_id');
+            if (clearCheck) clearCheck.checked = false;
+        }
+    }
+
+    function performDelete() {
+        console.log("performDelete started");
+        const input = document.getElementById('id_cover');
+        const clearCheck = document.getElementById('cover-clear_id');
+        const label = document.getElementById('file-name-label');
+        const btn = document.getElementById('fake-upload-btn');
+        const status = document.getElementById('current-cover-status');
+        
+        if (input) {
+            input.value = '';
+            console.log("File input cleared");
+        }
+        if (clearCheck) {
+            clearCheck.checked = true;
+            console.log("Clear checkbox checked");
+        }
+        if (status) status.style.display = 'none';
+        if (label) label.innerText = "{% trans 'O\'chirildi' %}";
+        
+        if (btn) {
+            btn.style.borderColor = '#ef4444';
+            btn.style.background = 'rgba(239, 68, 68, 0.05)';
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = 'fas fa-trash-alt';
+        }
+        
+        hideDeleteModal();
+        
+        setTimeout(() => {
+            if (label) label.innerText = "{% trans 'Rasm tanlash' %}";
+            if (btn) {
+                btn.style.borderColor = 'var(--border)';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = 'fas fa-upload';
+            }
+        }, 2000);
+    }
+</script>
 {% endblock %}

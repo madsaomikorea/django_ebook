@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class District(models.Model):
-    name = models.CharField(_("Tuman nomi"), max_length=255)
+    name = models.CharField(_("Tuman nomi"), max_length=255, unique=True)
 
     def __str__(self):
         return self.name
@@ -12,7 +12,7 @@ class District(models.Model):
         verbose_name_plural = _("Tumanlar")
 
 class School(models.Model):
-    name = models.CharField(_("Maktab nomi"), max_length=255)
+    name = models.CharField(_("Maktab nomi"), max_length=255, unique=True)
     address = models.CharField(_("Manzil"), max_length=255)
     contact = models.CharField(_("Kontakt"), max_length=255)
     district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='schools', verbose_name=_("Tuman"))
@@ -26,7 +26,7 @@ class School(models.Model):
 
 
 class Institution(models.Model):
-    name = models.CharField(_("Muassasa nomi"), max_length=255)
+    name = models.CharField(_("Muassasa nomi"), max_length=255, unique=True)
     address = models.CharField(_("Manzil"), max_length=255)
 
     def __str__(self):

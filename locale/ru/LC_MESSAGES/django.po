@@ -499,11 +499,17 @@ msgstr "Пароль админа"
 msgid "Parolni tasdiqlash"
 msgstr "Подтверждение пароля"
 
-msgid "Ushbu login band. Iltimos boshqasini tanlang."
-msgstr "Этот логин занят. Пожалуйста, выберите другой."
-
 msgid "Parollar mos kelmadi."
 msgstr "Пароли не совпадают."
+
+msgid "Maktab va admin yaratildi! Login: {}"
+msgstr "Школа и админ созданы! Логин: {}"
+
+msgid "Maktab yaratildi (admin biriktirilmadi)."
+msgstr "Школа создана (админ не прикреплен)."
+
+msgid "Asl paroli"
+msgstr "Исходный пароль"
 
 msgid "Kitob"
 msgstr "Книга"
@@ -1207,3 +1213,52 @@ msgstr "Супер Админ"
 
 msgid "O'qituvchi"
 msgstr "Учитель"
+
+msgid "Yangi Admin"
+msgstr "Новый админ"
+
+msgid "Yuklagan"
+msgstr "Загрузил"
+
+msgid "Joylangan"
+msgstr "Опубликовано"
+
+msgid "Yozilgan"
+msgstr "Написано"
+
+msgid "Muallif"
+msgstr "Автор"
+
+msgid "Yangiliklar boshqaruvi"
+msgstr "Управление новостями"
+
+msgid "Barcha global yangiliklar"
+msgstr "Все глобальные новости"
+
+msgid "Hozircha global yangiliklar yo'q"
+msgstr "Пока глобальных новостей нет"
+
+msgid "Yangi xabar"
+msgstr "Новое сообщение"
+
+msgid "Username, ism yoki maktab bo'yicha qidirish..."
+msgstr "Поиск по имени пользователя, имени или школе..."
+
+msgid "Avtomatik maktablar yaratish"
+msgstr "Автоматическое создание школ"
+
+msgid ""
+"Ushbu tumanga avtomatik tarzda n-ta maktab qo'shish uchun raqam kiriting."
+msgstr "Введите число, чтобы автоматически добавить n школ в этот район."
+
+msgid "Masalan: 10"
+msgstr "Например: 10"
+
+msgid "E'lon qilingan"
+msgstr "Опубликовано"
+
+msgid "Qoralama"
+msgstr "Черновик"
+
+msgid "Tuman ma'lumotlari"
+msgstr "Данные района"

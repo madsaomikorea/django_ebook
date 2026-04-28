@@ -27,4 +27,10 @@ urlpatterns = [
     path('admin/<int:pk>/edit/', views.admin_edit, name='admin_edit'),
     path('profile/', views.profile, name='profile'),
     path('profile/password/', views.change_password, name='change_password'),
+    
+    # News Management
+    path('news/', views.news_list, name='news_list'),
+    path('news/add/', views.news_add, name='news_add'),
+    path('news/<int:pk>/edit/', views.news_edit, name='news_edit'),
+    path('news/<int:pk>/delete/', views.news_delete, name='news_delete'),
 ]

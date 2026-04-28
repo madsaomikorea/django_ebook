@@ -25,14 +25,37 @@
                 <p style="font-weight: 600;">{{ school.contact|default:"+998..." }}</p>
             </div>
             <div class="glass-card" style="padding: 15px;">
-                <p style="font-size: 0.8rem; color: var(--text-muted);">{% trans "Admin" %}</p>
-                <p style="font-weight: 600;">
-                    {% if school_admin %}
-                        {{ school_admin.get_full_name|default:school_admin.username }}
-                    {% else %}
-                        ---
-                    {% endif %}
-                </p>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">{% trans "Maktab Admini" %}</p>
+                {% if school_admin %}
+                    <p style="font-weight: 600; margin-bottom: 5px;">{{ school_admin.get_full_name|default:school_admin.username }}</p>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--primary);">
+                        <i class="fas fa-user-shield"></i>
+                        <span>{% trans "Login" %}: <strong>{{ school_admin.username }}</strong></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">
+                        <i class="fas fa-key"></i>
+                        <span>{% trans "Parol" %}: <span id="admin-pass-text" style="color: white;">{{ school_admin.raw_password|default:'---' }}</span></span>
+                        <i class="fas fa-eye-slash" id="toggle-pass" style="cursor: pointer; color: var(--primary); font-size: 0.8rem; margin-left: 5px;"></i>
+                    </div>
+                    <script>
+                        document.getElementById('toggle-pass').addEventListener('click', function() {
+                            const passText = document.getElementById('admin-pass-text');
+                            if (this.classList.contains('fa-eye')) {
+                                passText.innerText = "{{ school_admin.raw_password|default:'---' }}";
+                                passText.style.letterSpacing = 'normal';
+                                this.classList.remove('fa-eye');
+                                this.classList.add('fa-eye-slash');
+                            } else {
+                                passText.innerText = "********";
+                                passText.style.letterSpacing = '2px';
+                                this.classList.remove('fa-eye-slash');
+                                this.classList.add('fa-eye');
+                            }
+                        });
+                    </script>
+                {% else %}
+                    <p style="font-weight: 600;">---</p>
+                {% endif %}
             </div>
         </div>
         

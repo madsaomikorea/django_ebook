@@ -15,6 +15,7 @@ class Category(models.Model):
 class Book(models.Model):
     school = models.ForeignKey('schools.School', on_delete=models.CASCADE, verbose_name=_("Maktab"))
     title = models.CharField(_("Sarlavha"), max_length=255)
+    author = models.CharField(_("Muallif"), max_length=255, null=True, blank=True)
     description = models.TextField(_("Tavsif"))
     cover = models.ImageField(_("Muqova"), upload_to='book_covers/%Y/%m/%d/', null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Kategoriya"))

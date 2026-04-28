@@ -26,6 +26,11 @@
                         {% if book.category %}{% trans book.category.name %}{% else %}{% trans "Kategoriyasiz" %}{% endif %}
                     </span>
                     <h2 style="font-size: clamp(1.5rem, 6vw, 2.5rem); margin: 10px 0; line-height: 1.2;">{{ book.title }}</h2>
+                    {% if book.author %}
+                    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 20px;">
+                        {% trans "Muallif" %}: {{ book.author }}
+                    </p>
+                    {% endif %}
                 </div>
                 <div class="glass-card" style="padding: 10px 20px; text-align: center;">
                     <p style="font-size: 0.8rem; color: var(--text-muted);">{% trans "Mavjud" %}</p>

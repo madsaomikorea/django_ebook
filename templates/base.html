@@ -134,6 +134,27 @@
             transform: translate(-50%, -50%) scale(1.1) !important;
             filter: drop-shadow(0 0 8px var(--primary-glow)) !important;
         }
+
+        /* Global Search Input Fix */
+        #search-input {
+            color: white !important;
+        }
+        #search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        /* Hide ALL native browser password reveal buttons */
+        input::-ms-reveal,
+        input::-ms-clear,
+        input::-webkit-reveal,
+        input::-webkit-clear,
+        input::-webkit-password-toggle-button {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 <body>
@@ -158,12 +179,11 @@
                         <div class="language-dropdown">
                             {% get_current_language as LANGUAGE_CODE %}
                             {% get_available_languages as LANGUAGES %}
-                            {% get_language_info_list for LANGUAGES as languages %}
-                            {% for language in languages %}
+                            {% for lang_code, lang_name in LANGUAGES %}
                                 <button type="button" 
-                                        class="lang-option {% if language.code == LANGUAGE_CODE %}active{% endif %}"
-                                        onclick="changeLanguage('{{ language.code }}')">
-                                    {{ language.name_local }}
+                                        class="lang-option {% if lang_code == LANGUAGE_CODE %}active{% endif %}"
+                                        onclick="changeLanguage('{{ lang_code }}')">
+                                    {{ lang_name }}
                                 </button>
                             {% endfor %}
                         </div>
@@ -260,7 +280,7 @@
                 
                 const toggle = document.createElement('i');
                 toggle.className = 'fas fa-eye';
-                toggle.style.cssText = 'position: absolute; right: 15px; top: 18px; cursor: pointer; color: var(--text-muted); transition: 0.3s; z-index: 10;';
+                toggle.style.cssText = 'position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); transition: 0.3s; z-index: 10;';
                 
                 toggle.onclick = () => {
                     if (field.type === 'password') {
@@ -285,6 +305,14 @@
             document.getElementById('lang-input').value = code;
             document.getElementById('lang-form').submit();
         }
+
+        // Global Search Enter Fix
+        document.addEventListener('keydown', function(e) {
+            if (e.target && e.target.id === 'search-input' && e.key === 'Enter') {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
     {% block extra_scripts %}{% endblock %}
 </body>

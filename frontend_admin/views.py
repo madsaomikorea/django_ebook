@@ -1,9 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
+
+from frontend_school.models import News
+from frontend_school.forms import NewsForm
 from schools.models import School, Institution, District
 from accounts.models import CustomUser
 from books.models import Book, BookIssue
 from django.utils.translation import gettext as _
+import secrets
+import string
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -157,14 +164,29 @@ def muassasa_delete(request, pk):
         return redirect('frontend_admin:muassasalar_list')
     return render(request, 'admin_panel/confirm_delete.html', {'object': inst, 'type': _('muassasani')})
 
-from .forms import DistrictForm
+from .forms import DistrictForm, SchoolFormSet
 
 @login_required(login_url='login')
 def district_add(request):
     if request.method == 'POST':
         form = DistrictForm(request.POST)
         if form.is_valid():
-            form.save()
+            district = form.save()
+            
+            # Bulk Create Schools
+            bulk_count = form.cleaned_data.get('bulk_schools_count')
+            if bulk_count:
+                existing_count = district.schools.count()
+                new_schools = []
+                for i in range(1, bulk_count + 1):
+                    new_schools.append(School(
+                        district=district,
+                        name=f"{district.name} {existing_count + i}-sonli maktab",
+                        address=f"{district.name} tumani",
+                        contact="Aloqa kiritilmagan"
+                    ))
+                School.objects.bulk_create(new_schools)
+                
             return redirect('frontend_admin:districts_list')
     else:
         form = DistrictForm()
@@ -177,6 +199,21 @@ def district_edit(request, pk):
         form = DistrictForm(request.POST, instance=district)
         if form.is_valid():
             form.save()
+            
+            # Bulk Create Schools
+            bulk_count = form.cleaned_data.get('bulk_schools_count')
+            if bulk_count:
+                existing_count = district.schools.count()
+                new_schools = []
+                for i in range(1, bulk_count + 1):
+                    new_schools.append(School(
+                        district=district,
+                        name=f"{district.name} {existing_count + i}-sonli maktab",
+                        address=f"{district.name} tumani",
+                        contact="Aloqa kiritilmagan"
+                    ))
+                School.objects.bulk_create(new_schools)
+                
             return redirect('frontend_admin:districts_list')
     else:
         form = DistrictForm(instance=district)
@@ -193,43 +230,135 @@ def district_delete(request, pk):
 @login_required(login_url='login')
 def school_add(request):
     if request.method == 'POST':
-        form = UnifiedSchoolForm(request.POST)
+        school_id = request.POST.get('existing_school_id')
+        school_name = request.POST.get('name')
+        district_id = request.POST.get('district')
+        
+        instance = None
+        if school_id and school_id.isdigit():
+            instance = School.objects.filter(pk=school_id).first()
+        
+        # Fallback: if no ID but name and district match an existing school, use that instance
+        if not instance and school_name and district_id:
+            instance = School.objects.filter(name=school_name, district_id=district_id).first()
+        
+        form = UnifiedSchoolForm(request.POST, instance=instance)
         if form.is_valid():
-            # 1. Create School
-            school = form.save()
+            school = form.save(commit=False)
+            
+            # If it's an existing school, check if it already has an admin
+            if instance and CustomUser.objects.filter(school=instance, role='school_admin').exists():
+                messages.error(request, f"'{instance.name}' maktabi uchun allaqachon admin biriktirilgan.")
+
+                return redirect('frontend_admin:school_add')
+
+            school.save()
             
             # 2. Create Admin User
-            admin_user = CustomUser.objects.create_user(
-                username=form.cleaned_data['admin_username'],
-                password=form.cleaned_data['admin_password'],
-                role='school_admin',
-                school=school
-            )
-            
-            # Log action
-            from stats.models import ActionLog
-            ActionLog.objects.create(
-                user=request.user,
-                action_type='CREATE',
-                message=_("Yangi maktab ({}) va uning admini ({}) yaratildi.").format(school.name, admin_user.username)
-            )
+            admin_username = form.cleaned_data.get('admin_username')
+            admin_password = form.cleaned_data.get('admin_password')
+
+            if admin_username and admin_password:
+                admin_user = CustomUser.objects.create_user(
+                    username=admin_username,
+                    password=admin_password,
+                    role='school_admin',
+                    school=school,
+                    first_name='Admin',
+                    last_name=school.name
+                )
+                admin_user.raw_password = admin_password
+                admin_user.save()
+                
+                # Log action
+                from stats.models import ActionLog
+                ActionLog.objects.create(
+                    user=request.user,
+                    action_type='CREATE',
+                    message=_("Yangi maktab ({}) va uning admini ({}) yaratildi.").format(school.name, admin_user.username)
+                )
+                messages.success(request, _("Maktab va admin yaratildi! Login: {}").format(admin_user.username))
+            else:
+                messages.success(request, _("Maktab yaratildi (admin biriktirilmadi)."))
             
             return redirect('frontend_admin:schools_list')
+
     else:
         form = UnifiedSchoolForm()
-    return render(request, 'admin_panel/school_form.html', {'form': form, 'title': _('Yangi maktab qo\'shish')})
+    # Fetch Districts and Schools for the selection UI
+    from django.db.models import Prefetch
+    districts = District.objects.prefetch_related(
+        Prefetch('schools', queryset=School.objects.all().order_by('name'))
+    ).order_by('name')
+
+    # Pass which schools already have admins
+    schools_with_admins = CustomUser.objects.filter(role='school_admin').values_list('school_id', flat=True)
+
+    return render(request, 'admin_panel/school_form.html', {
+        'form': form, 
+        'title': _('Yangi maktab qo\'shish'),
+        'districts': districts,
+        'schools_with_admins': list(schools_with_admins)
+    })
 
 @login_required(login_url='login')
 def school_edit(request, pk):
     school = get_object_or_404(School, pk=pk)
+    admin = CustomUser.objects.filter(school=school, role='school_admin').first()
+    
     if request.method == 'POST':
-        form = SchoolForm(request.POST, instance=school)
+        form = UnifiedSchoolForm(request.POST, instance=school, current_admin_id=admin.pk if admin else None)
         if form.is_valid():
-            form.save()
+            school = form.save()
+            
+            # Logic for updating or creating admin details
+            if admin:
+                admin.save()
+            else:
+                # Create NEW admin
+                admin_username = form.cleaned_data.get('admin_username')
+                admin_password = form.cleaned_data.get('admin_password')
+                
+                if admin_username and admin_password:
+                    new_admin = CustomUser.objects.create_user(
+                        username=admin_username,
+                        password=admin_password,
+                        role='school_admin',
+                        school=school,
+                        first_name='Admin',
+                        last_name=school.name
+                    )
+                    new_admin.raw_password = admin_password
+                    new_admin.save()
+                    messages.success(request, f"Maktab uchun yangi admin yaratildi! Login: {admin_username}")
+
+
+
             return redirect('frontend_admin:schools_list')
+
     else:
-        form = SchoolForm(instance=school)
-    return render(request, 'admin_panel/school_form.html', {'form': form, 'title': _('Maktab ma\'lumotlarini tahrirlash')})
+        initial = {}
+        if admin:
+            initial['admin_username'] = admin.username
+            if admin.raw_password:
+                initial['admin_password'] = admin.raw_password
+
+        
+        form = UnifiedSchoolForm(instance=school, initial=initial, current_admin_id=admin.pk if admin else None)
+    
+    # Fetch Districts and Schools for consistent template behavior
+    from django.db.models import Prefetch
+    districts = District.objects.prefetch_related(
+        Prefetch('schools', queryset=School.objects.all().order_by('name'))
+    ).order_by('name')
+    schools_with_admins = CustomUser.objects.filter(role='school_admin').values_list('school_id', flat=True)
+
+    return render(request, 'admin_panel/school_form.html', {
+        'form': form, 
+        'title': _('Maktab ma\'lumotlarini tahrirlash'),
+        'districts': districts,
+        'schools_with_admins': list(schools_with_admins)
+    })
 
 @login_required(login_url='login')
 def school_delete(request, pk):
@@ -248,9 +377,30 @@ def admin_add(request):
         if form.is_valid():
             admin = form.save(commit=False)
             admin.role = 'school_admin'
-            if form.cleaned_data.get('password'):
-                admin.set_password(form.cleaned_data['password'])
+            
+            # Initial save to get ID
+            admin.username = f"temp_adm_{secrets.token_hex(4)}"
             admin.save()
+            
+            # Smart credentials
+            def clean_name(name):
+                return "".join(c for c in name.lower() if c.isalnum() or c == '_').strip('_')
+            
+            district_part = clean_name(admin.school.district.name if admin.school and admin.school.district else "no")
+            school_part = clean_name(admin.school.name if admin.school else "school")
+            
+            username = f"{district_part}_{school_part}_adm_{admin.id}"
+            admin.username = username
+            
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for i in range(12))
+            admin.set_password(password)
+            admin.raw_password = password
+            admin.save()
+            
+            from django.contrib import messages
+            messages.success(request, f"Admin yaratildi! Login: {username}, Parol: {password}")
+            
             return redirect('frontend_admin:all_users_list')
     else:
         form = SchoolAdminForm()
@@ -262,8 +412,6 @@ def admin_edit(request, pk):
     if request.method == 'POST':
         form = SchoolAdminForm(request.POST, instance=admin)
         if form.is_valid():
-            if form.cleaned_data.get('password'):
-                admin.set_password(form.cleaned_data['password'])
             form.save()
             return redirect('frontend_admin:all_users_list')
     else:
@@ -282,10 +430,61 @@ def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.raw_password = form.cleaned_data.get('new_password1')
+            user.save()
             update_session_auth_hash(request, user)
             messages.success(request, _('Parolingiz muvaffaqiyatli o\'zgartirildi!'))
             return redirect('frontend_admin:profile')
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'admin_panel/password_change.html', {'form': form})
+
+
+# News Management
+@login_required(login_url='login')
+def news_list(request):
+    # Only superadmins should see global news management
+    if not request.user.is_superuser:
+        return redirect('login')
+    news = News.objects.filter(school__isnull=True).order_by('-created_at')
+    return render(request, 'admin_panel/news/list.html', {'news': news})
+
+@login_required(login_url='login')
+def news_add(request):
+    if not request.user.is_superuser:
+        return redirect('login')
+    if request.method == 'POST':
+        form = NewsForm(request.POST, request.FILES)
+        if form.is_valid():
+            news = form.save(commit=False)
+            news.school = None # Explicitly set to None for global news
+            news.save()
+            return redirect('frontend_admin:news_list')
+    else:
+        form = NewsForm()
+    return render(request, 'admin_panel/news/form.html', {'form': form, 'title': _("Yangi xabar qo'shish")})
+
+@login_required(login_url='login')
+def news_edit(request, pk):
+    if not request.user.is_superuser:
+        return redirect('login')
+    news = get_object_or_404(News, pk=pk, school__isnull=True)
+    if request.method == 'POST':
+        form = NewsForm(request.POST, request.FILES, instance=news)
+        if form.is_valid():
+            form.save()
+            return redirect('frontend_admin:news_list')
+    else:
+        form = NewsForm(instance=news)
+    return render(request, 'admin_panel/news/form.html', {'form': form, 'title': _("Xabarni tahrirlash")})
+
+@login_required(login_url='login')
+def news_delete(request, pk):
+    if not request.user.is_superuser:
+        return redirect('login')
+    news = get_object_or_404(News, pk=pk, school__isnull=True)
+    if request.method == 'POST':
+        news.delete()
+        return redirect('frontend_admin:news_list')
+    return render(request, 'admin_panel/confirm_delete.html', {'object': news, 'type': 'yangilikni'})

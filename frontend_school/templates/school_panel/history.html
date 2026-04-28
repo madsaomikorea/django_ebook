@@ -21,8 +21,8 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
         <h3><i class="fas fa-history" style="color: var(--primary);"></i> {% trans "Barcha amallar tarixi" %}</h3>
         
-        <form method="get" style="display: flex; gap: 10px; flex: 1; max-width: 400px;">
-            <input type="text" name="q" value="{{ query|default:'' }}" class="glass-card" placeholder="{% trans 'Kitob, o\'quvchi yoki ID...' %}" style="flex: 1; padding: 10px 15px; border: 1px solid var(--border); outline: none;">
+        <form method="get" id="search-form" onsubmit="return false;" style="display: flex; gap: 10px; flex: 1; max-width: 400px;">
+            <input type="text" name="q" id="search-input" value="{{ query|default:'' }}" class="glass-card" placeholder="{% trans 'Kitob, o\'quvchi yoki ID...' %}" style="flex: 1; padding: 10px 15px; border: 1px solid var(--border); outline: none; color: white;">
             <button type="submit" class="btn-primary" style="padding: 10px 20px;"><i class="fas fa-search"></i></button>
             {% if query %}
                 <a href="{% url 'frontend_school:history_list' %}" class="glass-card" style="padding: 10px; display: flex; align-items: center; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);"><i class="fas fa-times"></i></a>
@@ -42,9 +42,9 @@
                     <th style="padding: 10px 20px;">{% trans "Holati" %}</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="history-table-body">
                 {% for issue in history %}
-                <tr class="glass-card {% if issue.is_returned %}returned-row{% endif %}" style="transition: 0.3s;">
+                <tr class="history-row glass-card" data-search="{{ issue.book.title|lower }} {{ issue.user.first_name|lower }} {{ issue.user.last_name|lower }} {{ issue.user.username|lower }} {{ issue.user.grade|default:''|lower }}" style="transition: 0.3s; opacity: {% if issue.is_returned %}0.85{% else %}1{% endif %};">
                     <td style="padding: 15px 20px; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="width: 40px; height: 55px; background: rgba(255,255,255,0.05); border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
@@ -94,25 +94,68 @@
                     <td style="padding: 15px 20px; border-top-right-radius: 10px; border-bottom-right-radius: 10px;">
                         {% if issue.is_returned %}
                             <span style="padding: 5px 12px; background: rgba(255,255,255,0.05); color: var(--text-muted); border-radius: 20px; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
-                                <i class="fas fa-check-double"></i> {% trans "Qaytarilgan" %}
+                                <i class="fas fa-check-double"></i> {% trans "Qaytarildi" %}
                             </span>
                         {% else %}
                             <span style="padding: 5px 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 20px; font-size: 0.75rem; border: 1px solid rgba(16, 185, 129, 0.2);">
-                                <i class="fas fa-book-reader"></i> {% trans "O'qilmoqda" %}
+                                <i class="fas fa-hand-holding-heart"></i> {% trans "Berilgan" %}
                             </span>
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr id="empty-state">
                     <td colspan="6" style="padding: 60px; text-align: center; color: var(--text-muted);">
                         <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
                         <p>{% trans "Hozircha amallar tarixi mavjud emas" %}</p>
                     </td>
                 </tr>
                 {% endfor %}
+                <tr id="no-results" style="display: none;">
+                    <td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">{% trans "Qidiruv bo'yicha hech narsa topilmadi" %}</td>
+                </tr>
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const rows = document.querySelectorAll('.history-row');
+    const noResults = document.getElementById('no-results');
+    const emptyState = document.getElementById('empty-state');
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') e.preventDefault();
+    });
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        let found = 0;
+
+        rows.forEach(row => {
+            const searchText = row.getAttribute('data-search');
+            if (searchText.includes(query)) {
+                row.style.display = '';
+                found++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (found === 0 && rows.length > 0) {
+            noResults.style.display = '';
+        } else {
+            noResults.style.display = 'none';
+        }
+        
+        if (emptyState && query.length > 0) {
+            emptyState.style.display = 'none';
+        } else if (emptyState && query.length === 0 && rows.length === 0) {
+            emptyState.style.display = '';
+        }
+    });
+});
+</script>
 {% endblock %}

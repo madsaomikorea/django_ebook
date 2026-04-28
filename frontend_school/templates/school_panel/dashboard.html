@@ -23,7 +23,7 @@
     <a href="{% url 'frontend_school:issued_books_list' %}" class="glass-card animate-fade" style="padding: 30px; text-align: center; border-left: 4px solid var(--accent); animation-delay: 0.2s; text-decoration: none; display: block; color: inherit; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
         <i class="fas fa-hand-holding-heart" style="font-size: 2.5rem; color: var(--accent); margin-bottom: 15px;"></i>
         <h3 style="font-size: 2rem; margin-bottom: 5px;">{{ issued_count|default:"0" }}</h3>
-        <p style="color: var(--text-muted); margin: 0;">{% trans "O'qilayotgan kitoblar" %}</p>
+        <p style="color: var(--text-muted); margin: 0;">{% trans "Berilgan kitoblar" %}</p>
     </a>
     <a href="{% url 'frontend_school:books_list' %}" class="glass-card animate-fade" style="padding: 30px; text-align: center; border-left: 4px solid #10b981; animation-delay: 0.3s; text-decoration: none; display: block; color: inherit; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
         <i class="fas fa-check-circle" style="font-size: 2.5rem; color: #10b981; margin-bottom: 15px;"></i>

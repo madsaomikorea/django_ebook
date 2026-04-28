@@ -498,11 +498,17 @@ msgstr "Admin password"
 msgid "Parolni tasdiqlash"
 msgstr "Confirm password"
 
-msgid "Ushbu login band. Iltimos boshqasini tanlang."
-msgstr "This username is taken. Please choose another."
-
 msgid "Parollar mos kelmadi."
 msgstr "Passwords do not match."
+
+msgid "Maktab va admin yaratildi! Login: {}"
+msgstr "School and admin created! Login: {}"
+
+msgid "Maktab yaratildi (admin biriktirilmadi)."
+msgstr "School created (no admin assigned)."
+
+msgid "Asl paroli"
+msgstr "Raw password"
 
 msgid "Kitob"
 msgstr "Book"
@@ -1204,3 +1210,52 @@ msgstr "Super Admin"
 
 msgid "O'qituvchi"
 msgstr "Teacher"
+
+msgid "Yangi Admin"
+msgstr "New Admin"
+
+msgid "Yuklagan"
+msgstr "Uploaded by"
+
+msgid "Joylangan"
+msgstr "Posted on"
+
+msgid "Yozilgan"
+msgstr "Written by"
+
+msgid "Muallif"
+msgstr "Author"
+
+msgid "Yangiliklar boshqaruvi"
+msgstr "News Management"
+
+msgid "Barcha global yangiliklar"
+msgstr "All Global News"
+
+msgid "Hozircha global yangiliklar yo'q"
+msgstr "No global news yet"
+
+msgid "Yangi xabar"
+msgstr "New Message"
+
+msgid "Username, ism yoki maktab bo'yicha qidirish..."
+msgstr "Search by username, name or school..."
+
+msgid "Avtomatik maktablar yaratish"
+msgstr "Automatic School Creation"
+
+msgid ""
+"Ushbu tumanga avtomatik tarzda n-ta maktab qo'shish uchun raqam kiriting."
+msgstr "Enter a number to automatically add n schools to this district."
+
+msgid "Masalan: 10"
+msgstr "Example: 10"
+
+msgid "E'lon qilingan"
+msgstr "Published"
+
+msgid "Qoralama"
+msgstr "Draft"
+
+msgid "Tuman ma'lumotlari"
+msgstr "District Information"

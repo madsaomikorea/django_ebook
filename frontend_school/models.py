@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class News(models.Model):
-    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, verbose_name=_("Maktab"))
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Maktab"))
     title = models.CharField(_("Sarlavha"), max_length=255)
     body = models.TextField(_("Matn"))
     image = models.ImageField(_("Rasm"), upload_to='news_images/', null=True, blank=True)

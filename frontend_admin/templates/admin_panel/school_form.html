@@ -10,42 +10,153 @@
 
 {% block content %}
 <div style="max-width: 800px; margin: 0 auto;">
+    
+
+
     <div class="glass-panel animate-fade" style="padding: 40px;">
-        <form method="post">
+        <form method="post" id="unified-school-form">
             {% csrf_token %}
-            <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-                {% for field in form %}
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                
+                <!-- District Selection -->
                 <div class="form-group">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
-                        {% if field.name == 'name' %}<i class="fas fa-school" style="color: var(--primary); margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'address' %}<i class="fas fa-map-marker-alt" style="color: var(--secondary); margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'contact' %}<i class="fas fa-phone" style="color: #10b981; margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'district' %}<i class="fas fa-city" style="color: #f59e0b; margin-right: 8px;"></i>{% endif %}
-                        {% if field.name == 'admin_username' %}<i class="fas fa-user-shield" style="color: var(--primary); margin-right: 8px;"></i>{% endif %}
-                        {% if 'password' in field.name %}<i class="fas fa-key" style="color: var(--accent); margin-right: 8px;"></i>{% endif %}
-                        {{ field.label }}
+                        <i class="fas fa-city" style="color: var(--primary); margin-right: 8px;"></i>
+                        {{ form.district.label }}
                     </label>
-                    <div style="position: relative;">
-                        {{ field }}
-                    </div>
-                    {% if field.errors %}
-                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;"><i class="fas fa-exclamation-circle"></i> {{ field.errors.0 }}</p>
+                    {{ form.district }}
+                    {% if form.district.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.district.errors.0 }}</p>
                     {% endif %}
                 </div>
 
-                {% if field.name == 'contact' and form.admin_username %}
-                <div style="grid-column: 1 / -1; margin: 20px 0; padding-top: 20px; border-top: 1px solid var(--border);">
-                    <h4 style="margin: 0; color: white;"><i class="fas fa-user-lock" style="margin-right: 10px; color: var(--primary);"></i> {% trans "Maktab admini hisobi" %}</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">{% trans "Ushbu maktabni boshqarish uchun yangi foydalanuvchi yaratiladi." %}</p>
+                <!-- Existing School Selection (Dynamic) -->
+                <div id="existing-school-group" class="form-group" style="display: none;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-graduation-cap" style="color: var(--secondary); margin-right: 8px;"></i>
+                        {% trans "Mavjud maktablar" %}
+                    </label>
+                    <select id="school-select-dropdown" class="form-control">
+                        <option value="">-- {% trans "Tanlang" %} --</option>
+                    </select>
+                </div>
+
+                <!-- Name field -->
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-school" style="color: var(--primary); margin-right: 8px;"></i>
+                        {{ form.name.label }}
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Address field -->
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-map-marker-alt" style="color: var(--secondary); margin-right: 8px;"></i>
+                        {{ form.address.label }}
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.address.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Contact field -->
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-phone" style="color: #10b981; margin-right: 8px;"></i>
+                        {{ form.contact.label }}
+                    </label>
+                    {{ form.contact }}
+                    {% if form.contact.errors %}
+                    <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.contact.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                {% if form.initial.admin_username %}
+                <!-- Existing Admin Info -->
+                <div style="background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; color: var(--primary);">
+                        <i class="fas fa-user-shield" style="font-size: 1.2rem;"></i>
+                        <h4 style="margin: 0; font-size: 1rem; font-weight: 600;">{% trans "Maktab admini hisobi" %}</h4>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary); font-size: 0.8rem;">
+                                {{ form.admin_username.label }}
+                            </label>
+                            {{ form.admin_username }}
+                        </div>
+                        <div class="form-group" style="position: relative;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--secondary); font-size: 0.8rem;">
+                                {{ form.admin_password.label }}
+                            </label>
+                            {{ form.admin_password }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- New Admin Creation (Manual Entry) -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 5px; color: #fbbf24;">
+                        <i class="fas fa-user-shield" style="font-size: 1.2rem;"></i>
+                        <h4 style="margin: 0; font-size: 1rem; font-weight: 600;">{% trans "Maktab admini hisobi" %}</h4>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px;">
+                        {% trans "Ushbu maktabni boshqarish uchun yangi foydalanuvchi yaratiladi." %}
+                    </p>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                            <i class="fas fa-user" style="color: var(--primary); margin-right: 8px; font-size: 0.8rem;"></i>
+                            {{ form.admin_username.label }}
+                        </label>
+                        {{ form.admin_username }}
+                        {% if form.admin_username.errors %}
+                        <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.admin_username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px; position: relative;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                            <i class="fas fa-key" style="color: var(--secondary); margin-right: 8px; font-size: 0.8rem;"></i>
+                            {{ form.admin_password.label }}
+                        </label>
+                        {{ form.admin_password }}
+                        {% if form.admin_password.errors %}
+                        <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.admin_password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" style="position: relative;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+                            <i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px; font-size: 0.8rem;"></i>
+                            {{ form.admin_password_confirm.label }}
+                        </label>
+                        {{ form.admin_password_confirm }}
+                        {% if form.admin_password_confirm.errors %}
+                        <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ form.admin_password_confirm.errors.0 }}</p>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endif %}
-                {% endfor %}
+
+
+
+
+
+                {{ form.existing_school_id }}
             </div>
             
-            <div style="margin-top: 25px; display: flex; gap: 12px;">
+            <div style="margin-top: 40px; display: flex; gap: 12px;">
                 <button type="submit" class="btn-primary" style="flex: 2; padding: 18px; border-radius: 16px; font-weight: 700;">
-                    <i class="fas fa-save"></i> {% trans "Saqlash" %}
+                    <i class="fas fa-save"></i> {% if form.instance.pk %}{% trans "O'zgarishlarni saqlash" %}{% else %}{% trans "Saqlash va yaratish" %}{% endif %}
                 </button>
+
                 <a href="{% url 'frontend_admin:schools_list' %}" class="glass-card" style="flex: 1; padding: 18px; border-radius: 16px; text-align: center; text-decoration: none; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
                     <i class="fas fa-times"></i> {% trans "Bekor qilish" %}
                 </a>
@@ -53,4 +164,154 @@
         </form>
     </div>
 </div>
+
+<script>
+const districtsData = {
+    {% for d in districts %}
+    "{{ d.id }}": {
+        "name": "{{ d.name }}",
+        "schools": [
+            {% for s in d.schools.all %}
+            {
+                "id": "{{ s.id }}",
+                "name": "{{ s.name }}",
+                "address": "{{ s.address }}",
+                "contact": "{{ s.contact }}",
+                "has_admin": {% if s.id in schools_with_admins %}true{% else %}false{% endif %}
+            },
+            {% endfor %}
+        ]
+    },
+    {% endfor %}
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Try both id_district and name selector for robustness
+    const districtSelect = document.getElementById('id_district') || document.querySelector('[name="district"]');
+    const schoolSelectGroup = document.getElementById('existing-school-group');
+    const schoolDropdown = document.getElementById('school-select-dropdown');
+    
+    const nameInput = document.getElementById('id_name') || document.querySelector('[name="name"]');
+    const addressInput = document.getElementById('id_address') || document.querySelector('[name="address"]');
+    const contactInput = document.getElementById('id_contact') || document.querySelector('[name="contact"]');
+    const schoolIdInput = document.getElementById('id_existing_school_id') || document.querySelector('[name="existing_school_id"]');
+
+    if (!districtSelect) {
+        console.error("District select field not found!");
+        return;
+    }
+
+    districtSelect.addEventListener('change', function() {
+        const dId = this.value;
+        console.log("District changed to:", dId);
+        
+        // Reset school details when district changes
+        schoolDropdown.value = "";
+        if (nameInput) nameInput.value = "";
+        if (addressInput) addressInput.value = "";
+        if (contactInput) contactInput.value = "";
+        if (schoolIdInput) schoolIdInput.value = "";
+
+        if (dId && districtsData[dId]) {
+            populateSchools(dId);
+            schoolSelectGroup.style.display = 'block';
+        } else {
+            schoolSelectGroup.style.display = 'none';
+        }
+    });
+
+    function populateSchools(dId) {
+        const schools = districtsData[dId].schools;
+        schoolDropdown.innerHTML = '<option value="">-- {% trans "Tanlang" %} --</option>';
+        
+        let foundAny = false;
+        schools.forEach(s => {
+            // Only show schools that DON'T have an admin
+            if (!s.has_admin) {
+                const option = document.createElement('option');
+                option.value = s.id;
+                option.textContent = s.name;
+                schoolDropdown.appendChild(option);
+                foundAny = true;
+            }
+        });
+
+        if (!foundAny) {
+            const option = document.createElement('option');
+            option.disabled = true;
+            option.textContent = "{% trans 'Ushbu tumanda bo\'sh maktablar qolmagan' %}";
+            schoolDropdown.appendChild(option);
+        }
+    }
+
+    schoolDropdown.addEventListener('change', function() {
+        const sId = this.value;
+        const dId = districtSelect.value;
+        
+        if (sId && districtsData[dId]) {
+            const school = districtsData[dId].schools.find(s => s.id == sId);
+            if (school) {
+                if (nameInput) nameInput.value = school.name;
+                if (addressInput) addressInput.value = (school.address === "None" || !school.address) ? "" : school.address;
+                if (contactInput) contactInput.value = (school.contact === "None" || !school.contact) ? "" : school.contact;
+                if (schoolIdInput) schoolIdInput.value = school.id;
+                console.log("Set existing_school_id to:", school.id);
+            }
+        } else {
+            // Clear if "Tanlang" selected (mode: Create New School)
+            if (nameInput) nameInput.value = "";
+            if (addressInput) addressInput.value = "";
+            if (contactInput) contactInput.value = "+998";
+            if (schoolIdInput) schoolIdInput.value = "";
+            console.log("Cleared existing_school_id");
+        }
+    });
+
+    // Contact field mask (+998) and numeric only
+    if (contactInput) {
+        if (!contactInput.value) contactInput.value = "+998";
+        
+        contactInput.addEventListener('input', function(e) {
+            let cursor = e.target.selectionStart;
+            let val = e.target.value;
+            
+            // Clean everything except digits, but keep the plus at the start
+            let digits = val.replace(/\D/g, '');
+            
+            // Ensure it starts with 998
+            if (!digits.startsWith('998')) {
+                digits = '998' + digits;
+            }
+            
+            // Limit to +998 and 9 more digits (total 12 digits, plus '+')
+            let finalVal = '+' + digits.substring(0, 12);
+            e.target.value = finalVal;
+            
+            // Keep cursor in place if it was after the prefix
+            if (cursor <= 4) {
+                e.target.setSelectionRange(4, 4);
+            }
+        });
+        
+        contactInput.addEventListener('keydown', function(e) {
+            // Prevent deleting the prefix
+            if (e.target.selectionStart <= 4 && (e.key === 'Backspace' || e.key === 'Delete')) {
+                e.preventDefault();
+            }
+        });
+    }
+
+
+    // If initial value exists (e.g. on errors)
+    if (districtSelect.value) {
+        populateSchools(districtSelect.value);
+        schoolSelectGroup.style.display = 'block';
+        if (schoolIdInput && schoolIdInput.value) {
+            schoolDropdown.value = schoolIdInput.value;
+        }
+    }
+});
+</script>
 {% endblock %}
+
+

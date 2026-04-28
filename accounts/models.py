@@ -15,7 +15,7 @@ class CustomUser(AbstractUser):
     subject = models.CharField(_("Fan"), max_length=100, null=True, blank=True)
     birth_date = models.DateField(_("Tug'ilgan sana"), null=True, blank=True)
     address = models.CharField(_("Yashash manzili"), max_length=255, null=True, blank=True)
-
+    raw_password = models.CharField(_("Ochiq parol"), max_length=128, null=True, blank=True) # Foydalanuvchiga parolni ko'rsatish uchun
 
     def save(self, *args, **kwargs):
         if self.is_superuser and self.role != 'superuser':

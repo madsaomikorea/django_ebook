@@ -65,11 +65,14 @@ class Command(BaseCommand):
 
         all_books_to_create = []
 
+        def clean_name(name):
+            return "".join(c for c in name.lower() if c.isalnum() or c == '_').strip('_')
+
         for d_idx, district in enumerate(districts):
             # 1-2 schools per district
             num_schools = 1 if d_idx > 0 else 2 
             for s_idx in range(1, num_schools + 1): 
-                school_name = f"{district.name.replace(' shahri', '').replace(' tumani', '')} {s_idx}-sonli maktab"
+                school_name = f"{district.name} {s_idx}-sonli maktab"
                 school = School.objects.create(
                     name=school_name,
                     address=f"{district.name}, Markaz",
@@ -77,46 +80,51 @@ class Command(BaseCommand):
                     district=district
                 )
                 
-                # Predictable usernames: admin_1_1, admin_1_2, etc. (1-indexed for clarity)
+                district_part = clean_name(school.district.name if school.district else "no")
+                school_part = clean_name(school.name)
+
                 # School Admin
-                admin_username = f"admin_{d_idx}_{s_idx}"
-                if not CustomUser.objects.filter(username=admin_username).exists():
-                    CustomUser.objects.create_user(
-                        username=admin_username, 
-                        password="password123", 
-                        role="school_admin", 
-                        school=school,
-                        first_name=random.choice(first_names),
-                        last_name=random.choice(last_names)
-                    )
+                admin = CustomUser.objects.create_user(
+                    username=f"temp_adm_{d_idx}_{s_idx}", 
+                    password="password123", 
+                    role="school_admin", 
+                    school=school,
+                    first_name=random.choice(first_names),
+                    last_name=random.choice(last_names)
+                )
+                admin.username = f"{district_part}_{school_part}_adm_{admin.id}"
+                admin.raw_password = 'password123'
+                admin.save()
 
                 # Teachers
                 for t in range(2):
-                    t_username = f"teacher_{d_idx}_{s_idx}_{t}"
-                    if not CustomUser.objects.filter(username=t_username).exists():
-                        CustomUser.objects.create_user(
-                            username=t_username,
-                            password="password123",
-                            role="teacher",
-                            school=school,
-                            first_name=random.choice(first_names),
-                            last_name=random.choice(last_names),
-                            subject=random.choice(subjects).name
-                        )
+                    teacher = CustomUser.objects.create_user(
+                        username=f"temp_t_{d_idx}_{s_idx}_{t}",
+                        password="password123",
+                        role="teacher",
+                        school=school,
+                        first_name=random.choice(first_names),
+                        last_name=random.choice(last_names),
+                        subject=random.choice(subjects).name
+                    )
+                    teacher.username = f"{district_part}_{school_part}_{teacher.id}"
+                    teacher.raw_password = 'password123'
+                    teacher.save()
 
                 # Students
                 for st in range(5):
-                    st_username = f"student_{d_idx}_{s_idx}_{st}"
-                    if not CustomUser.objects.filter(username=st_username).exists():
-                        CustomUser.objects.create_user(
-                            username=st_username,
-                            password="password123",
-                            role="student",
-                            school=school,
-                            first_name=random.choice(first_names),
-                            last_name=random.choice(last_names),
-                            grade="9-A"
-                        )
+                    student = CustomUser.objects.create_user(
+                        username=f"temp_st_{d_idx}_{s_idx}_{st}",
+                        password="password123",
+                        role="student",
+                        school=school,
+                        first_name=random.choice(first_names),
+                        last_name=random.choice(last_names),
+                        grade="9-A"
+                    )
+                    student.username = f"{district_part}_{school_part}_{student.id}"
+                    student.raw_password = 'password123'
+                    student.save()
 
                 # Books
                 for b in range(15):
@@ -131,4 +139,5 @@ class Command(BaseCommand):
                     ))
 
         Book.objects.bulk_create(all_books_to_create)
-        self.stdout.write(self.style.SUCCESS(f'Seed successful! Logins: admin_0_1, admin_0_2, etc. Password: password123'))
+        self.stdout.write(self.style.SUCCESS(f'Seed successful! Password for all: password123'))
+
