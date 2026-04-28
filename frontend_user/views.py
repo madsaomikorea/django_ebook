@@ -53,7 +53,7 @@ def news_list(request):
 
 @login_required(login_url='login')
 def profile(request):
-    if request.user.role in ['school_admin', 'teacher']:
+    if request.user.role == 'school_admin':
         return redirect('frontend_school:profile')
     if request.user.role == 'superuser' or request.user.is_superuser:
         return redirect('frontend_admin:profile')
@@ -74,7 +74,9 @@ def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.raw_password = form.cleaned_data.get('new_password1')
+            user.save()
             update_session_auth_hash(request, user)  # Important!
             messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
             return redirect('frontend_user:profile')

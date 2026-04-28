@@ -79,11 +79,14 @@ def seed():
         "Fizika 7-sinf", "Algebra 8-sinf", "Kimyo 9-sinf", "Ingliz tili darsligi"
     ]
 
+    def clean_name(name):
+        return "".join(c for c in name.lower() if c.isalnum() or c == '_').strip('_')
+
     for d_idx, district in enumerate(districts):
         # 2 schools per district for Karakalpakstan (since there are more districts)
         num_schools = 2 if d_idx > 0 else 3 # 3 for Nukus city
         for i in range(1, num_schools + 1): 
-            school_name = f"{district.name.replace(' shahri', '').replace(' tumani', '')} {i}-sonli maktab"
+            school_name = f"{district.name} {i}-sonli maktab"
             school = School.objects.create(
                 name=school_name,
                 address=f"{district.name}, Markaziy ko'chasi, {random.randint(1, 150)}-uy",
@@ -93,22 +96,26 @@ def seed():
             
             print(f"  Seeding {school_name}...")
 
+            district_part = clean_name(school.district.name if school.district else "no")
+            school_part = clean_name(school.name)
+
             # School Admin (Librarian)
-            admin_username = f"admin_{d_idx}_{i}"
-            CustomUser.objects.create_user(
-                username=admin_username, 
+            admin = CustomUser.objects.create_user(
+                username=f"temp_adm_{d_idx}_{i}", 
                 password="password123", 
                 role="school_admin", 
                 school=school,
                 first_name=random.choice(first_names),
                 last_name=random.choice(last_names)
             )
+            admin.username = f"{district_part}_{school_part}_adm_{admin.id}"
+            admin.raw_password = 'password123'
+            admin.save()
 
             # Teachers
             for t in range(10): # Increased to 10
-                t_username = f"teacher_{d_idx}_{i}_{t}"
-                CustomUser.objects.create_user(
-                    username=t_username,
+                teacher = CustomUser.objects.create_user(
+                    username=f"temp_t_{d_idx}_{i}_{t}",
                     password="password123",
                     role="teacher",
                     school=school,
@@ -116,14 +123,16 @@ def seed():
                     last_name=random.choice(last_names),
                     subject=random.choice(subjects).name
                 )
+                teacher.username = f"{district_part}_{school_part}_{teacher.id}"
+                teacher.raw_password = 'password123'
+                teacher.save()
 
             # Students
             grades = ["7-A", "7-B", "8-A", "8-B", "9-A", "9-V", "10-A", "11-B"]
             students = []
             for s in range(100): # Increased to 100
-                s_username = f"student_{d_idx}_{i}_{s}"
                 student = CustomUser.objects.create_user(
-                    username=s_username,
+                    username=f"temp_st_{d_idx}_{i}_{s}",
                     password="password123",
                     role="student",
                     school=school,
@@ -131,7 +140,11 @@ def seed():
                     last_name=random.choice(last_names),
                     grade=random.choice(grades)
                 )
+                student.username = f"{district_part}_{school_part}_{student.id}"
+                student.raw_password = 'password123'
+                student.save()
                 students.append(student)
+
 
             # Books
             books = []

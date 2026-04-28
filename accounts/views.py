@@ -15,7 +15,7 @@ def login_view(request):
             login(request, user)
             return redirect_role_based(user)
         else:
-            error = "Foydalanuvchi nomi yoki parol noto'g'ri"
+            error = "Login yoki parol noto'g'ri"
             
     return render(request, 'login.html', {'error': error})
 

@@ -14,9 +14,12 @@ from django.contrib.auth.forms import PasswordChangeForm
 import secrets
 import string
 from .models import News
+from django.utils.translation import gettext_lazy as _
 
 @login_required(login_url='login')
 def dashboard(request):
+    if request.user.role != 'school_admin':
+        return redirect('frontend_user:library')
     school = request.user.school
     context = {}
     if school:
@@ -25,6 +28,13 @@ def dashboard(request):
             total_copies=Sum('total_count'),
             available_copies=Sum('available_count')
         )
+        from django.db.models import Q
+        # Base news filter: current school's news
+        news_filter = Q(school=school)
+        # Only school admins and superusers see global news
+        if request.user.role == 'school_admin' or request.user.is_superuser:
+            news_filter |= Q(school__isnull=True)
+            
         context = {
             'student_count': CustomUser.objects.filter(school=school, role='student').count(),
             'book_count': Book.objects.filter(school=school).count(),
@@ -32,7 +42,7 @@ def dashboard(request):
             'available_copies': stats['available_copies'] or 0,
             'issued_count': BookIssue.objects.filter(book__school=school, is_returned=False).count(),
             'recent_activities': recent_activities,
-            'news_count': News.objects.filter(school=school).count(),
+            'news_count': News.objects.filter(news_filter, is_published=True).count(),
         }
     return render(request, 'school_panel/dashboard.html', context)
 
@@ -129,7 +139,14 @@ def history_list(request):
 @login_required(login_url='login')
 def news_list(request):
     school = request.user.school
-    news = News.objects.filter(school=school).order_by('-created_at')
+    from django.db.models import Q
+    # Base filter: only school's news
+    query = Q(school=school)
+    # Add global news only for admins
+    if request.user.role == 'school_admin' or request.user.is_superuser:
+        query |= Q(school__isnull=True)
+        
+    news = News.objects.filter(query, is_published=True).order_by('-created_at')
     return render(request, 'school_panel/news.html', {'news': news})
 
 @login_required(login_url='login')
@@ -175,6 +192,10 @@ def process_qr(request):
                 request_obj = BookRequest.objects.get(id=request_id, status='pending')
             except BookRequest.DoesNotExist:
                 return JsonResponse({'status': 'error', 'message': 'Bron topilmadi yoki allaqachon tasdiqlangan'})
+            
+            # [CRITICAL CHECK] Ensure the student belongs to the librarian's school
+            if request_obj.user.school != request.user.school:
+                return JsonResponse({'status': 'error', 'message': 'Xatolik: Ushbu o\'quvchi boshqa maktabga tegishli!'})
             
             # Check if book is available
             book = request_obj.book
@@ -230,6 +251,10 @@ def process_receive_qr(request):
                 issue = BookIssue.objects.get(id=issue_id, is_returned=False)
             except BookIssue.DoesNotExist:
                 return JsonResponse({'status': 'error', 'message': 'Ushbu kitob uchun faol topshirish topilmadi'})
+            
+            # [CRITICAL CHECK] Ensure the student belongs to the librarian's school
+            if issue.user.school != request.user.school:
+                return JsonResponse({'status': 'error', 'message': 'Xatolik: Ushbu o\'quvchi boshqa maktabga tegishli!'})
             
             book = issue.book
             user = issue.user
@@ -310,19 +335,29 @@ def student_add(request):
             student.school = request.user.school
             student.role = 'student'
             
-            # Auto-generate username based on school ID
-            school_id = student.school.id if student.school else 0
-            random_suffix = get_random_string(5, allowed_chars=string.ascii_lowercase + string.digits)
-            student.username = f"s{school_id}_{random_suffix}"
+            # 1. Save initially to get ID
+            student.username = f"temp_{secrets.token_hex(4)}"
+            student.save()
             
-            # Generate random password if not provided
-            password = form.cleaned_data.get('password')
-            if not password:
-                password = get_random_string(12)
-                messages.success(request, f"Yangi o'quvchi uchun parol: {password}")
+            # 2. Generate Smart Login: {district}_{school}_{id}
+            def clean_name(name):
+                return "".join(c for c in name.lower() if c.isalnum() or c == '_').strip('_')
+            
+            district_part = clean_name(student.school.district.name if student.school and student.school.district else "no")
+            school_part = clean_name(student.school.name if student.school else "school")
+            
+            username = f"{district_part}_{school_part}_{student.id}"
+            student.username = username
+            
+            # 3. Generate Random Password (12 chars)
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for i in range(12))
             
             student.set_password(password)
+            student.raw_password = password # Visible to admin
             student.save()
+            
+            messages.success(request, _(f"Yangi o'quvchi qo'shildi! Login: {username}, Parol: {password}"))
             return redirect('frontend_school:students_list')
     else:
         form = StudentForm()
@@ -334,8 +369,6 @@ def student_edit(request, pk):
     if request.method == 'POST':
         form = StudentForm(request.POST, instance=student)
         if form.is_valid():
-            if form.cleaned_data.get('password'):
-                student.set_password(form.cleaned_data['password'])
             form.save()
             return redirect('frontend_school:students_list')
     else:
@@ -359,19 +392,29 @@ def teacher_add(request):
             teacher.school = request.user.school
             teacher.role = 'teacher'
             
-            # Auto-generate username based on school ID
-            school_id = teacher.school.id if teacher.school else 0
-            random_suffix = get_random_string(5, allowed_chars=string.ascii_lowercase + string.digits)
-            teacher.username = f"t{school_id}_{random_suffix}"
+            # 1. Save initially to get ID
+            teacher.username = f"temp_t_{secrets.token_hex(4)}"
+            teacher.save()
             
-            # Generate random password if not provided
-            password = form.cleaned_data.get('password')
-            if not password:
-                password = get_random_string(12)
-                messages.success(request, f"Yangi o'qituvchi uchun parol: {password}")
+            # 2. Generate Smart Login: {district}_{school}_{id}
+            def clean_name(name):
+                return "".join(c for c in name.lower() if c.isalnum() or c == '_').strip('_')
+            
+            district_part = clean_name(teacher.school.district.name if teacher.school and teacher.school.district else "no")
+            school_part = clean_name(teacher.school.name if teacher.school else "school")
+            
+            username = f"{district_part}_{school_part}_{teacher.id}"
+            teacher.username = username
+            
+            # 3. Generate Random Password (12 chars)
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for i in range(12))
             
             teacher.set_password(password)
+            teacher.raw_password = password
             teacher.save()
+            
+            messages.success(request, _(f"Yangi o'qituvchi qo'shildi! Login: {username}, Parol: {password}"))
             return redirect('frontend_school:teachers_list')
     else:
         form = TeacherForm()
@@ -383,8 +426,6 @@ def teacher_edit(request, pk):
     if request.method == 'POST':
         form = TeacherForm(request.POST, instance=teacher)
         if form.is_valid():
-            if form.cleaned_data.get('password'):
-                teacher.set_password(form.cleaned_data['password'])
             form.save()
             return redirect('frontend_school:teachers_list')
     else:
@@ -434,6 +475,8 @@ def news_delete(request, pk):
 
 @login_required(login_url='login')
 def profile(request):
+    if request.user.role != 'school_admin':
+        return redirect('frontend_user:library')
     return render(request, 'school_panel/profile.html')
 
 @login_required(login_url='login')
@@ -441,7 +484,9 @@ def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.raw_password = form.cleaned_data.get('new_password1')
+            user.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
             return redirect('frontend_school:profile')

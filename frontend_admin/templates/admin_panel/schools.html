@@ -12,9 +12,6 @@
 <div class="glass-panel animate-fade">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3><i class="fas fa-school" style="color: var(--primary);"></i> {% trans "Tizimdagi barcha maktablar" %}</h3>
-        <a href="{% url 'frontend_admin:school_add' %}" class="btn-primary" style="padding: 10px 20px; text-decoration: none;">
-            <i class="fas fa-plus"></i> {% trans "Yangi maktab qo'shish" %}
-        </a>
     </div>
 
     <!-- Filter by District -->
@@ -36,74 +33,75 @@
     </div>
 
     <style>
-        .district-link {
-            text-decoration: none; 
-            color: var(--secondary); 
-            font-weight: 500; 
-            border-bottom: 1px dashed rgba(124, 58, 237, 0.3); 
+        .school-card {
+            padding: 25px; 
+            cursor: pointer; 
             transition: 0.3s;
+            position: relative;
         }
-        .district-link:hover {
-            color: var(--primary) !important;
-            border-bottom-color: var(--primary);
+        .school-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary) !important;
+        }
+        .metric-badge {
+            padding: 6px 12px; 
+            border-radius: 12px; 
+            font-size: 0.8rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
         }
     </style>
 
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <th style="padding: 15px;">ID</th>
-                    <th style="padding: 15px;">{% trans "Maktab nomi" %}</th>
-                    <th style="padding: 15px;">{% trans "Tuman (Rayon)" %}</th>
-                    <th style="padding: 15px;">{% trans "Kitoblar" %}</th>
-                    <th style="padding: 15px;">{% trans "Kategoriyalar" %}</th>
-                    <th style="padding: 15px;">{% trans "O'quvchilar" %}</th>
-                    <th style="padding: 15px;">{% trans "Amallar" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for school in schools %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding: 15px;">#{{ school.id|stringformat:"03d" }}</td>
-                    <td style="padding: 15px; font-weight: 600;">{{ school.name }}</td>
-                    <td style="padding: 15px;">
-                        <a href="?district={{ school.district.id }}" class="district-link">
-                            {{ school.district.name|default:"—" }}
-                        </a>
-                    </td>
-                    <td style="padding: 15px;">
-                        <span style="color: var(--accent);"><i class="fas fa-book"></i> {{ school.book_count }}</span>
-                    </td>
-                    <td style="padding: 15px;">
-                        <span style="color: #10b981;"><i class="fas fa-tags"></i> {{ school.category_count }}</span>
-                    </td>
-                    <td style="padding: 15px;">
-                        <span class="glass-card" style="padding: 4px 12px; font-size: 0.8rem;">
-                            <i class="fas fa-users"></i> {{ school.student_count|default:"0" }}
-                        </span>
-                    </td>
-                    <td style="padding: 15px;">
-                        <div style="display: flex; gap: 12px;">
-                            <a href="{% url 'frontend_admin:school_detail' school.pk %}" class="glass-card" style="padding: 8px 18px; border-radius: 20px; display: flex; align-items: center; gap: 8px; color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.3s;" title="{% trans 'Ko\'rish' %}">
-                                {% trans "View" %} <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
-                            </a>
-                            <a href="{% url 'frontend_admin:school_edit' school.pk %}" class="glass-card" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.25); transition: 0.3s;" title="{% trans 'Tahrirlash' %}">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="{% url 'frontend_admin:school_delete' school.pk %}" class="glass-card" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); transition: 0.3s;" title="{% trans 'O\'chirish' %}">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">{% trans "Maktablar topilmadi" %}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        {% for school in schools %}
+        <div class="glass-card school-card" 
+             onclick="window.location='{% url 'frontend_admin:school_detail' school.pk %}';">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div>
+                    <h4 style="margin: 0; font-size: 1.1rem; color: white;">{{ school.name }}</h4>
+                    <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                        <i class="fas fa-map-marker-alt" style="font-size: 0.75rem;"></i> {{ school.district.name|default:"—" }}
+                    </p>
+                </div>
+                <span class="glass-card" style="padding: 4px 10px; font-size: 0.7rem; border-radius: 8px; color: var(--text-muted);">
+                    #{{ school.id|stringformat:"03d" }}
+                </span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                <div class="metric-badge" style="color: var(--accent);">
+                    <i class="fas fa-book"></i> {{ school.book_count }}
+                </div>
+                <div class="metric-badge" style="color: #10b981;">
+                    <i class="fas fa-users"></i> {{ school.student_count|default:"0" }}
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                    {% trans "Batafsil" %} <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i>
+                </span>
+                
+                <div style="display: flex; gap: 10px;" onclick="event.stopPropagation()">
+                    <a href="{% url 'frontend_admin:school_edit' school.pk %}" class="glass-card" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.2); transition: 0.3s;" title="{% trans 'Tahrirlash' %}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'frontend_admin:school_delete' school.pk %}" class="glass-card" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); transition: 0.3s;" title="{% trans 'O\'chirish' %}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="glass-card" style="padding: 60px; text-align: center; grid-column: 1 / -1;">
+            <i class="fas fa-school" style="font-size: 3rem; color: rgba(255,255,255,0.05); margin-bottom: 20px; display: block;"></i>
+            <p style="color: var(--text-muted);">{% trans "Maktablar topilmadi" %}</p>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

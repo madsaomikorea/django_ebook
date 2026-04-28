@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from schools.models import School, Institution, District
@@ -34,6 +35,15 @@ class SchoolForm(forms.ModelForm):
         return val
         
 class DistrictForm(forms.ModelForm):
+    bulk_schools_count = forms.IntegerField(
+        required=False, 
+        min_value=1, 
+        max_value=100,
+        label=_("Avtomatik maktablar yaratish"),
+        help_text=_("Ushbu tumanga avtomatik tarzda n-ta maktab qo'shish uchun raqam kiriting."),
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: 10'})
+    )
+
     class Meta:
         model = District
         fields = ['name']
@@ -44,6 +54,24 @@ class DistrictForm(forms.ModelForm):
         val = self.cleaned_data.get('name')
         validate_char_limit(val, 100)
         return val
+
+class SchoolInlineForm(forms.ModelForm):
+    class Meta:
+        model = School
+        fields = ['name', 'address', 'contact']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Maktab nomi'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Manzil'}),
+            'contact': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Aloqa'}),
+        }
+
+SchoolFormSet = inlineformset_factory(
+    District, 
+    School, 
+    form=SchoolInlineForm,
+    extra=1, 
+    can_delete=True
+)
 class InstitutionForm(forms.ModelForm):
     class Meta:
         model = Institution
@@ -60,13 +88,10 @@ class InstitutionForm(forms.ModelForm):
 from accounts.models import CustomUser
 
 class SchoolAdminForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False, help_text="Yangi foydalanuvchi uchun majburiy. Tahrirlashda bo'sh qoldirsa o'zgarmaydi.")
-    
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'school', 'password']
+        fields = ['first_name', 'last_name', 'school']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'school': forms.Select(attrs={'class': 'form-control'}),
@@ -85,22 +110,10 @@ class SchoolAdminForm(forms.ModelForm):
         return val
 
 class UnifiedSchoolForm(forms.ModelForm):
-    admin_username = forms.CharField(
-        max_length=150, 
-        required=True, 
-        label=_("Admin login (username)"),
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    admin_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        required=True,
-        label=_("Admin paroli")
-    )
-    admin_password_confirm = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        required=True,
-        label=_("Parolni tasdiqlash")
-    )
+    existing_school_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    admin_username = forms.CharField(label=_("Admin login (username)"), required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'username'}))
+    admin_password = forms.CharField(label=_("Admin paroli"), required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '********'}))
+    admin_password_confirm = forms.CharField(label=_("Parolni tasdiqlash"), required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '********'}))
 
     class Meta:
         model = School
@@ -112,19 +125,39 @@ class UnifiedSchoolForm(forms.ModelForm):
             'contact': forms.TextInput(attrs={'class': 'form-control'}),
         }
     
-    field_order = ['district', 'name', 'address', 'contact', 'admin_username', 'admin_password', 'admin_password_confirm']
+    field_order = ['district', 'name', 'address', 'contact', 'existing_school_id']
 
-    def clean_admin_username(self):
-        username = self.cleaned_data.get('admin_username')
-        if CustomUser.objects.filter(username=username).exists():
-            raise ValidationError(_("Ushbu login band. Iltimos boshqasini tanlang."))
-        return username
+    def __init__(self, *args, **kwargs):
+        self.current_admin_id = kwargs.pop('current_admin_id', None)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super().clean()
-        password = cleaned_data.get("admin_password")
-        confirm = cleaned_data.get("admin_password_confirm")
+        admin_username = cleaned_data.get('admin_username')
+        admin_password = cleaned_data.get('admin_password')
+        admin_password_confirm = cleaned_data.get('admin_password_confirm')
 
-        if password and confirm and password != confirm:
-            self.add_error('admin_password_confirm', _("Parollar mos kelmadi."))
+        # Check if we are creating a NEW admin
+        # In school_add instance.pk is None. In school_edit, we check if school already has an admin in the view, 
+        # but here we just check if any admin field is filled.
+        
+        if admin_username or admin_password or admin_password_confirm:
+            if not admin_username:
+                self.add_error('admin_username', _("Login kiriting."))
+            if not admin_password:
+                self.add_error('admin_password', _("Parol kiriting."))
+            if admin_password != admin_password_confirm:
+                self.add_error('admin_password_confirm', _("Parollar mos kelmadi."))
+            
+            if CustomUser.objects.filter(username=admin_username).exclude(pk=self.current_admin_id).exists():
+                self.add_error('admin_username', _("Ushbu login band. Boshqa tanlang."))
+
+        # Extra check: if we are in "Add" mode but existing_school_id is set,
+        # ensure we are treating it as an update for the school model
+        existing_id = cleaned_data.get('existing_school_id')
+        if existing_id and not self.instance.pk:
+            # This case should be handled by passing instance in the view, 
+            # but this is a safety net.
+            pass
+
         return cleaned_data

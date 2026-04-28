@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+import django.conf.locale
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -155,14 +156,26 @@ USE_TZ = True
 from django.utils.translation import gettext_lazy as _
 
 LANGUAGES = [
-    ('uz', _('Uzbek')),
-    ('ru', _('Russian')),
-    ('en', _('English')),
+    ('uz', 'Oʻzbekcha'),
+    ('ru', 'Русский'),
+    ('kaa', 'Qaraqalpaqsha'),
 ]
 
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
+
+# Add Karakalpak (kaa) to Django's internal language info to prevent KeyErrors
+LANG_INFO = django.conf.locale.LANG_INFO
+if 'kaa' not in LANG_INFO:
+    LANG_INFO.update({
+        'kaa': {
+            'bidi': False,
+            'code': 'kaa',
+            'name': 'Karakalpak',
+            'name_local': 'Qaraqalpaqsha',
+        },
+    })
 
 
 # Static files (CSS, JavaScript, Images)

@@ -42,10 +42,10 @@
 {% endif %}
 
 <div class="glass-panel" style="padding: 25px; margin-bottom: 35px; border-radius: 24px;">
-    <form method="get" style="display: flex; gap: 12px; margin-bottom: 20px;">
+    <form method="get" id="search-form" style="display: flex; gap: 12px; margin-bottom: 20px;">
         <div style="flex-grow: 1; position: relative;">
             <i class="fas fa-search" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem;"></i>
-            <input type="text" name="q" value="{{ current_query }}" class="form-control" placeholder="{% trans 'Kitob nomi, muallifi yoki kategoriyasi...' %}" style="padding: 18px 18px 18px 55px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); font-size: 1rem;">
+            <input type="text" name="q" id="search-input" value="{{ current_query }}" class="form-control" placeholder="{% trans 'Kitob nomi, muallifi yoki kategoriyasi...' %}" style="padding: 18px 18px 18px 55px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); font-size: 1rem;">
         </div>
         <button type="submit" class="btn-primary" style="padding: 0 40px; border-radius: 16px; font-weight: 700; box-shadow: 0 10px 20px var(--primary-glow);">{% trans "Qidirish" %}</button>
     </form>
@@ -87,9 +87,9 @@
     </div>
 </div>
 
-<div class="books-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
+<div id="books-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;">
     {% for book in books %}
-    <div class="glass-card animate-fade" style="padding: 12px; border-radius: 30px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+    <div class="book-card glass-card animate-fade" data-title="{{ book.title|lower }}" data-author="{{ book.author|default:''|lower }}" data-category="{{ book.category.name|default:''|lower }}" style="padding: 12px; border-radius: 30px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
         <!-- Cover Section -->
         <div style="position: relative; height: 380px; background: #1a1a1a; overflow: hidden; border-radius: 22px;">
             {% if book.cover %}
@@ -133,7 +133,7 @@
                 </div>
                 <div style="width: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
                 <div style="flex: 1; text-align: center;">
-                    <div style="font-size: 0.55rem; color: var(--primary); text-transform: uppercase; margin-bottom: 2px;">{% trans "O'qilmoqda" %}</div>
+                    <div style="font-size: 0.55rem; color: var(--primary); text-transform: uppercase; margin-bottom: 2px;">{% trans "Berilgan" %}</div>
                     <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary);">{{ book.currently_reading_count }}</div>
                 </div>
             </div>
@@ -147,10 +147,46 @@
         </div>
     </div>
     {% empty %}
-    <div class="glass-panel flex-center" style="grid-column: 1/-1; padding: 100px; flex-direction: column; gap: 20px;">
+    <div class="glass-panel flex-center" style="grid-column: 1/-1; padding: 100px; flex-direction: column; gap: 20px; display: flex; align-items: center; justify-content: center;">
         <i class="fas fa-search" style="font-size: 4rem; opacity: 0.1;"></i>
         <p style="color: var(--text-muted); font-size: 1.2rem;">{% trans "Hozircha kitoblar topilmadi" %}</p>
     </div>
     {% endfor %}
+    <div id="no-results" style="display: none; grid-column: 1 / -1; padding: 100px; text-align: center; color: var(--text-muted);">
+        <i class="fas fa-search" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px;"></i>
+        <p style="font-size: 1.2rem;">{% trans "Qidiruv bo'yicha hech narsa topilmadi" %}</p>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const bookCards = document.querySelectorAll('.book-card');
+    const noResults = document.getElementById('no-results');
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        let found = 0;
+
+        bookCards.forEach(card => {
+            const title = card.getAttribute('data-title');
+            const author = card.getAttribute('data-author');
+            const category = card.getAttribute('data-category');
+            
+            if (title.includes(query) || author.includes(query) || category.includes(query)) {
+                card.style.display = 'flex';
+                found++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (found === 0) {
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}

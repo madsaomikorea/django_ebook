@@ -7,6 +7,9 @@ class Command(BaseCommand):
     help = 'Seeds the database with demo users and books'
 
     def handle(self, *args, **kwargs):
+        def clean_name(name):
+            return "".join(c for c in name.lower() if c.isalnum() or c == '_').strip('_')
+
         # 1. Create Superuser
         if not CustomUser.objects.filter(username='admin').exists():
             CustomUser.objects.create_superuser(
@@ -17,13 +20,24 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS('Superuser created: admin / superadmin'))
 
+        # 1.1 Create Demo District
+        from schools.models import District
+        district, _ = District.objects.get_or_create(name='Nukus shahri')
+
         # 2. Create Demo School
         school, created = School.objects.get_or_create(
             name='Demo School #1',
-            defaults={'address': 'Demo Street 123', 'contact': '+998901234567'}
+            defaults={
+                'address': 'Demo Street 123', 
+                'contact': '+998901234567',
+                'district': district
+            }
         )
         if created:
             self.stdout.write(self.style.SUCCESS(f'School created: {school.name}'))
+
+        district_part = clean_name(school.district.name if school.district else "no")
+        school_part = clean_name(school.name)
 
         # 3. Create Categories
         categories = ['Badiiy adabiyot', 'Ilmiy-ommabop', 'Darsliklar', 'Tarix']
@@ -37,7 +51,7 @@ class Command(BaseCommand):
         # 4. Create Demo Books
         demo_books = [
             {
-                'title': 'Oʻtgan kunlar',
+                'title': "O'tgan kunlar",
                 'description': 'Abdulla Qodiriyning eng mashhur asari.',
                 'category': cat_objects['Badiiy adabiyot'],
                 'total_count': 10,
@@ -74,37 +88,51 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"Book created: {book.title}"))
 
         # 5. Create School Admin
-        if not CustomUser.objects.filter(username='school_admin').exists():
-            CustomUser.objects.create_user(
-                username='school_admin',
-                email='school@demo.com',
+        if not CustomUser.objects.filter(role='school_admin', school=school).exists():
+            admin = CustomUser.objects.create_user(
+                username='temp_adm',
                 password='password123',
                 role='school_admin',
-                school=school
+                school=school,
+                first_name='Ali',
+                last_name='Valiyev'
             )
-            self.stdout.write(self.style.SUCCESS('School Admin created: school_admin / password123'))
+            admin.username = f"{district_part}_{school_part}_adm_{admin.id}"
+            admin.raw_password = 'password123'
+            admin.save()
+            self.stdout.write(self.style.SUCCESS(f'School Admin created: {admin.username} / password123'))
 
         # 6. Create Teacher
-        if not CustomUser.objects.filter(username='teacher_demo').exists():
-            CustomUser.objects.create_user(
-                username='teacher_demo',
-                email='teacher@demo.com',
+        if not CustomUser.objects.filter(role='teacher', school=school).exists():
+            teacher = CustomUser.objects.create_user(
+                username='temp_teacher',
                 password='password123',
                 role='teacher',
-                school=school
+                school=school,
+                first_name='Zuhra',
+                last_name='Aliyeva',
+                subject='Matematika'
             )
-            self.stdout.write(self.style.SUCCESS('Teacher created: teacher_demo / password123'))
+            teacher.username = f"{district_part}_{school_part}_{teacher.id}"
+            teacher.raw_password = 'password123'
+            teacher.save()
+            self.stdout.write(self.style.SUCCESS(f'Teacher created: {teacher.username} / password123'))
 
         # 7. Create Student
-        if not CustomUser.objects.filter(username='student_demo').exists():
-            CustomUser.objects.create_user(
-                username='student_demo',
-                email='student@demo.com',
+        if not CustomUser.objects.filter(role='student', school=school).exists():
+            student = CustomUser.objects.create_user(
+                username='temp_student',
                 password='password123',
                 role='student',
                 school=school,
+                first_name='Umar',
+                last_name='Hasanov',
                 grade='9-A'
             )
-            self.stdout.write(self.style.SUCCESS('Student created: student_demo / password123'))
+            student.username = f"{district_part}_{school_part}_{student.id}"
+            student.raw_password = 'password123'
+            student.save()
+            self.stdout.write(self.style.SUCCESS(f'Student created: {student.username} / password123'))
 
         self.stdout.write(self.style.SUCCESS('Demo seeding completed successfully!'))
+

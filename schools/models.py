@@ -1,13 +1,13 @@
 from django.db import models
 
 class District(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
 
 class School(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
     contact = models.CharField(max_length=255)
     district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='schools')
@@ -16,7 +16,7 @@ class School(models.Model):
         return self.name
 
 class Institution(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     address = models.CharField(max_length=255)
 
     def __str__(self):

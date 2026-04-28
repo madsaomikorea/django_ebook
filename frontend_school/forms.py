@@ -91,17 +91,15 @@ class StudentForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'birth_date', 'password']
+        fields = ['first_name', 'last_name', 'birth_date']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['password'].required = False
         if self.instance and self.instance.grade:
             # Try to split "7A" into "7" and "A"
             import re
@@ -114,7 +112,17 @@ class StudentForm(forms.ModelForm):
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
         self.fields['birth_date'].label = _("Tug'ilgan sana")
-        self.fields['password'].label = _("Parol")
+        self.fields['birth_date'].required = True
+
+    def clean_birth_date(self):
+        birth_date = self.cleaned_data.get('birth_date')
+        if birth_date:
+            from datetime import date
+            today = date.today()
+            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+            if age < 7:
+                raise ValidationError(_("O'quvchi kamida 7 yosh bo'lishi kerak!"))
+        return birth_date
 
     def clean_first_name(self):
         name = self.cleaned_data.get('first_name')
@@ -138,26 +146,23 @@ class StudentForm(forms.ModelForm):
 class TeacherForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'birth_date', 'subject', 'address', 'password']
+        fields = ['first_name', 'last_name', 'birth_date', 'subject', 'address']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '100', 'list': 'subject-list', 'autocomplete': 'off'}),
             'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Yashash manzili'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Bo\'sh qoldirilsa, avtomatik yaratiladi'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['password'].required = False
         from django.utils.translation import gettext_lazy as _
         self.fields['first_name'].label = _("Ism")
         self.fields['last_name'].label = _("Familiya")
         self.fields['birth_date'].label = _("Tug'ilgan sana")
         self.fields['subject'].label = _("Fan")
         self.fields['address'].label = _("Yashash manzili")
-        self.fields['password'].label = _("Parol")
         
         from schools.models import Subject
         self.subjects = Subject.objects.all().order_by('name')

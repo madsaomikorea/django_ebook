@@ -20,4 +20,7 @@
 <a href="{% url 'frontend_admin:all_users_list' %}" class="nav-link {% if request.resolver_match.url_name == 'all_users_list' %}active{% endif %}">
     <i class="fas fa-users"></i> <span>{% trans "Foydalanuvchilar" %}</span>
 </a>
+<a href="{% url 'frontend_admin:news_list' %}" class="nav-link {% if 'news' in request.resolver_match.url_name %}active{% endif %}">
+    <i class="fas fa-newspaper"></i> <span>{% trans "Yangiliklar" %}</span>
+</a>
 

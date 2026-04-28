@@ -1,0 +1,31 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-25 10:00+0000\n"
+"PO-Revision-Date: 2024-04-25 10:00+0000\n"
+"Last-Translator: Auto\n"
+"Language-Team: kaa\n"
+"Language: kaa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Kirish | Online Kutibxona"
+msgstr "Kiriw | Onlayn Kitapxana"
+
+msgid "Mening kitoblarim"
+msgstr "Meniń kitaplarım"
+
+msgid "Hozir o'qilayotgan kitoblar"
+msgstr "Házir oqılıp atırǵan kitaplar"
+
+msgid "Qayta olish"
+msgstr "Qayta alıw"
+
+msgid "Topshirish"
+msgstr " tapsırıw"
+
+msgid "O'qish tarixi"
+msgstr "Oqıw tariyxı"

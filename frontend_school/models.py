@@ -1,7 +1,7 @@
 from django.db import models
 
 class News(models.Model):
-    school = models.ForeignKey('schools.School', on_delete=models.CASCADE)
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     body = models.TextField()
     image = models.ImageField(upload_to='news_images/', null=True, blank=True)
