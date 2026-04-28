@@ -103,7 +103,7 @@
             
             <!-- Category Badge -->
             <div style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); padding: 5px 12px; border-radius: 12px; font-size: 0.6rem; color: white; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); text-transform: uppercase; letter-spacing: 0.5px;">
-                {{ book.category.name|default:"General" }}
+                {% if book.category %}{{ book.category.name }}{% else %}{% trans "Umumiy" %}{% endif %}
             </div>
             
             <!-- Popularity Float -->
@@ -111,7 +111,7 @@
                 {% if book.borrow_count > 50 %}<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 {% elif book.borrow_count > 20 %}<i class="fas fa-star"></i><i class="fas fa-star"></i>
                 {% elif book.borrow_count > 0 %}<i class="fas fa-star"></i>
-                {% else %}<span style="color: #94a3b8; font-weight: 600; font-size: 0.55rem;">NEW</span>{% endif %}
+                {% else %}<span style="color: #94a3b8; font-weight: 600; font-size: 0.55rem;">{% trans "Yangi" %}</span>{% endif %}
                 <span style="color: white; margin-left: 2px;">{{ book.borrow_count }}</span>
             </div>
         </div>

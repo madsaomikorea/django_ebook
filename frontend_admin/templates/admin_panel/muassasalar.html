@@ -28,7 +28,7 @@
     <div id="inst-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
         {% for inst in institutions %}
         <div class="inst-card glass-card" data-search="{{ inst.name|lower }} {{ inst.address|lower }}" style="padding: 25px;">
-            <h4 style="margin-bottom: 10px;">{{ inst.name }}</h4>
+            <h4 style="margin-bottom: 10px;">{% trans inst.name %}</h4>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">{{ inst.address }}</p>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="glass-panel" style="padding: 4px 12px; font-size: 0.75rem;">{% trans "Aktiv" %}</span>

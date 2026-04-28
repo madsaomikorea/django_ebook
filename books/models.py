@@ -1,21 +1,28 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 class Category(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(_("Nomi"), max_length=255)
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Kategoriya")
+        verbose_name_plural = _("Kategoriyalar")
+
 class Book(models.Model):
-    school = models.ForeignKey('schools.School', on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    cover = models.ImageField(upload_to='book_covers/%Y/%m/%d/', null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    total_count = models.IntegerField()
-    available_count = models.IntegerField()
-    borrow_count = models.IntegerField(default=0)
+    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, verbose_name=_("Maktab"))
+    title = models.CharField(_("Sarlavha"), max_length=255)
+    author = models.CharField(_("Muallif"), max_length=255, null=True, blank=True)
+    description = models.TextField(_("Tavsif"))
+    cover = models.ImageField(_("Muqova"), upload_to='book_covers/%Y/%m/%d/', null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Kategoriya"))
+    total_count = models.IntegerField(_("Umumiy soni"))
+    available_count = models.IntegerField(_("Mavjud soni"))
+    borrow_count = models.IntegerField(_("O'qilganlar soni"), default=0)
+
 
     @property
     def currently_reading_count(self):
@@ -70,19 +77,22 @@ class BookIssue(models.Model):
     def __str__(self):
         return f"{self.book.title} -> {self.user.username}"
 
+from django.utils.translation import gettext_lazy as _
+
 class BookRequest(models.Model):
     STATUS_CHOICES = (
-        ('pending', 'Kutilmoqda'),
-        ('approved', 'Tasdiqlandi'),
-        ('rejected', 'Rad etildi'),
-        ('completed', 'Yakunlandi'),
+        ('pending', _('Kutilmoqda')),
+        ('approved', _('Tasdiqlandi')),
+        ('rejected', _('Rad etildi')),
+        ('completed', _('Yakunlandi')),
     )
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    requested_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name=_("Kitob"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_("Foydalanuvchi"))
+    requested_at = models.DateTimeField(_("So'ralgan sana"), auto_now_add=True)
+    status = models.CharField(_("Holati"), max_length=20, choices=STATUS_CHOICES, default='pending')
     qr_code = models.ImageField(upload_to='request_qrs/%Y/%m/%d/', null=True, blank=True)
     qr_token = models.CharField(max_length=255, null=True, blank=True)
+
 
     def __str__(self):
         return f"Request: {self.book.title} by {self.user.username}"

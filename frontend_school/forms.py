@@ -9,12 +9,12 @@ def validate_word_limit(value, limit):
     if not value: return
     words = value.split()
     if len(words) > limit:
-        raise ValidationError(_(f"Limit: {limit} ta so'z. Siz {len(words)} ta so'z kiritdingiz."))
+        raise ValidationError(_("Limit: %(limit)s ta so'z. Siz %(count)s ta so'z kiritdingiz.") % {'limit': limit, 'count': len(words)})
 
 def validate_char_limit(value, limit):
     if not value: return
     if len(value) > limit:
-        raise ValidationError(_(f"Limit: {limit} ta belgi. Siz {len(value)} ta belgi kiritdingiz."))
+        raise ValidationError(_("Limit: %(limit)s ta belgi. Siz %(count)s ta belgi kiritdingiz.") % {'limit': limit, 'count': len(value)})
 
 class BookForm(forms.ModelForm):
     category_name = forms.CharField(
@@ -25,9 +25,10 @@ class BookForm(forms.ModelForm):
 
     class Meta:
         model = Book
-        fields = ['title', 'description', 'cover', 'total_count', 'available_count']
+        fields = ['title', 'author', 'description', 'cover', 'total_count', 'available_count']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '150', 'data-limit-words': '20'}),
+            'author': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '150'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'data-limit-words': '500'}),
             'total_count': forms.NumberInput(attrs={'class': 'form-control'}),
             'available_count': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -96,6 +97,7 @@ class StudentForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _("Bo'sh qoldirilsa, avtomatik yaratiladi")}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -152,7 +154,8 @@ class TeacherForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '50'}),
             'birth_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'subject': forms.TextInput(attrs={'class': 'form-control', 'data-limit-chars': '100', 'list': 'subject-list', 'autocomplete': 'off'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Yashash manzili'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _("Yashash manzili")}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _("Bo'sh qoldirilsa, avtomatik yaratiladi")}),
         }
 
     def __init__(self, *args, **kwargs):

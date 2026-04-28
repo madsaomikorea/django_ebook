@@ -2,19 +2,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-from accounts.models import CustomUser
-from books.models import Book, BookIssue
-
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils.crypto import get_random_string
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.translation import gettext as _
+from django.utils import timezone
+import json
 import secrets
 import string
+
+from accounts.models import CustomUser
+from accounts.utils import verify_dynamic_token
+from books.models import Book, BookIssue, BookRequest, Category
+from stats.models import ActionLog
 from .models import News
-from django.utils.translation import gettext_lazy as _
+from .forms import BookForm, StudentForm, TeacherForm, NewsForm
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -165,7 +169,7 @@ def process_qr_unified(request):
             elif token.startswith('RET_'):
                 return process_receive_qr(request)
             else:
-                return JsonResponse({'status': 'error', 'message': 'Noma\'lum QR-kod turi. Iltimos, kitob berish yoki qaytarish kodini skanerlang.'})
+                return JsonResponse({'status': 'error', 'message': _('Noma\'lum QR-kod turi. Iltimos, kitob berish yoki qaytarish kodini skanerlang.')})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Method not allowed'})
@@ -183,24 +187,22 @@ def process_qr(request):
             request_id = verify_dynamic_token(token, 'REQ')
             
             if not request_id:
-                return JsonResponse({'status': 'error', 'message': 'Eski yoki noto\'g\'ri QR-kod. Iltimos, o\'quvchi telefonida kodni yangilasini kutib turing.'})
+                return JsonResponse({'status': 'error', 'message': _('Eski yoki noto\'g\'ri QR-kod. Iltimos, o\'quvchi telefonida kodni yangilasini kutib turing.')})
             
-            from books.models import BookRequest, BookIssue
-            from stats.models import ActionLog
             
             try:
                 request_obj = BookRequest.objects.get(id=request_id, status='pending')
             except BookRequest.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'Bron topilmadi yoki allaqachon tasdiqlangan'})
+                return JsonResponse({'status': 'error', 'message': _('Bron topilmadi yoki allaqachon tasdiqlangan')})
             
             # [CRITICAL CHECK] Ensure the student belongs to the librarian's school
             if request_obj.user.school != request.user.school:
-                return JsonResponse({'status': 'error', 'message': 'Xatolik: Ushbu o\'quvchi boshqa maktabga tegishli!'})
+                return JsonResponse({'status': 'error', 'message': _('Xatolik: Ushbu o\'quvchi boshqa maktabga tegishli!')})
             
             # Check if book is available
             book = request_obj.book
             if book.available_count <= 0:
-                return JsonResponse({'status': 'error', 'message': 'Kitob qolmagan'})
+                return JsonResponse({'status': 'error', 'message': _('Kitob qolmagan')})
             
             # Process: update request and create issue
             request_obj.status = 'approved'
@@ -216,12 +218,12 @@ def process_qr(request):
             ActionLog.objects.create(
                 user=request.user,
                 action_type='ISSUE',
-                message=f"{request_obj.user.username}ga '{book.title}' kitobi berildi"
+                message=_("{}ga '{}' kitobi berildi").format(request_obj.user.username, book.title)
             )
             
             return JsonResponse({
                 'status': 'success', 
-                'message': f'Kitob muvaffaqiyatli berildi: {book.title}',
+                'message': _('Kitob muvaffaqiyatli berildi: {}').format(book.title),
                 'student': f'{request_obj.user.first_name} {request_obj.user.last_name}'
             })
             
@@ -241,7 +243,7 @@ def process_receive_qr(request):
             issue_id = verify_dynamic_token(token, 'RET')
             
             if not issue_id:
-                return JsonResponse({'status': 'error', 'message': 'Eski yoki noto\'g\'ri QR-kod'})
+                return JsonResponse({'status': 'error', 'message': _('Eski yoki noto\'g\'ri QR-kod')})
                 
             from books.models import BookIssue
             from django.utils import timezone
@@ -250,11 +252,11 @@ def process_receive_qr(request):
             try:
                 issue = BookIssue.objects.get(id=issue_id, is_returned=False)
             except BookIssue.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'Ushbu kitob uchun faol topshirish topilmadi'})
+                return JsonResponse({'status': 'error', 'message': _('Ushbu kitob uchun faol topshirish topilmadi')})
             
             # [CRITICAL CHECK] Ensure the student belongs to the librarian's school
             if issue.user.school != request.user.school:
-                return JsonResponse({'status': 'error', 'message': 'Xatolik: Ushbu o\'quvchi boshqa maktabga tegishli!'})
+                return JsonResponse({'status': 'error', 'message': _('Xatolik: Ushbu o\'quvchi boshqa maktabga tegishli!')})
             
             book = issue.book
             user = issue.user
@@ -267,7 +269,6 @@ def process_receive_qr(request):
             book.save()
             
             # Find and complete the associated request if it exists
-            from books.models import BookRequest
             request_obj = BookRequest.objects.filter(book=book, user=user, status='approved').first()
             if request_obj:
                 request_obj.status = 'completed'
@@ -277,12 +278,12 @@ def process_receive_qr(request):
             ActionLog.objects.create(
                 user=request.user,
                 action_type='RETURN',
-                message=f"{user.username}dan '{book.title}' kitobi qabul qilindi"
+                message=_("{}dan '{}' kitobi qabul qilindi").format(user.username, book.title)
             )
             
             return JsonResponse({
                 'status': 'success', 
-                'message': f'Kitob muvaffaqiyatli qabul qilindi: {book.title}',
+                'message': _('Kitob muvaffaqiyatli qabul qilindi: {}').format(book.title),
                 'student': f'{user.first_name} {user.last_name}'
             })
             
@@ -291,7 +292,6 @@ def process_receive_qr(request):
             
     return JsonResponse({'status': 'error', 'message': 'Method not allowed'})
 
-from .forms import BookForm, StudentForm, TeacherForm, NewsForm
 
 @login_required(login_url='login')
 def book_add(request):
@@ -304,7 +304,7 @@ def book_add(request):
             return redirect('frontend_school:books_list')
     else:
         form = BookForm()
-    return render(request, 'school_panel/book_form.html', {'form': form, 'title': 'Yangi kitob qo\'shish'})
+    return render(request, 'school_panel/book_form.html', {'form': form, 'title': _('Yangi kitob qo\'shish')})
 
 @login_required(login_url='login')
 def book_edit(request, pk):
@@ -316,7 +316,7 @@ def book_edit(request, pk):
             return redirect('frontend_school:books_list')
     else:
         form = BookForm(instance=book)
-    return render(request, 'school_panel/book_form.html', {'form': form, 'title': 'Kitobni tahrirlash'})
+    return render(request, 'school_panel/book_form.html', {'form': form, 'title': _('Kitobni tahrirlash')})
 
 @login_required(login_url='login')
 def book_delete(request, pk):
@@ -324,7 +324,7 @@ def book_delete(request, pk):
     if request.method == 'POST':
         book.delete()
         return redirect('frontend_school:books_list')
-    return render(request, 'school_panel/confirm_delete.html', {'object': book, 'type': 'kitobni'})
+    return render(request, 'school_panel/confirm_delete.html', {'object': book, 'type': _('kitobni')})
 
 @login_required(login_url='login')
 def student_add(request):
@@ -350,18 +350,20 @@ def student_add(request):
             student.username = username
             
             # 3. Generate Random Password (12 chars)
-            alphabet = string.ascii_letters + string.digits
-            password = ''.join(secrets.choice(alphabet) for i in range(12))
+            password = form.cleaned_data.get('password')
+            if not password:
+                alphabet = string.ascii_letters + string.digits
+                password = ''.join(secrets.choice(alphabet) for i in range(12))
             
             student.set_password(password)
             student.raw_password = password # Visible to admin
             student.save()
             
-            messages.success(request, _(f"Yangi o'quvchi qo'shildi! Login: {username}, Parol: {password}"))
+            messages.success(request, _("Yangi o'quvchi qo'shildi! Login: {}, Parol: {}").format(username, password))
             return redirect('frontend_school:students_list')
     else:
         form = StudentForm()
-    return render(request, 'school_panel/student_form.html', {'form': form, 'title': 'Yangi o\'quvchi qo\'shish'})
+    return render(request, 'school_panel/student_form.html', {'form': form, 'title': _('Yangi o\'quvchi qo\'shish')})
 
 @login_required(login_url='login')
 def student_edit(request, pk):
@@ -373,7 +375,7 @@ def student_edit(request, pk):
             return redirect('frontend_school:students_list')
     else:
         form = StudentForm(instance=student)
-    return render(request, 'school_panel/student_form.html', {'form': form, 'title': 'O\'quvchi ma\'lumotlarini tahrirlash'})
+    return render(request, 'school_panel/student_form.html', {'form': form, 'title': _('O\'quvchi ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
 def student_delete(request, pk):
@@ -381,7 +383,7 @@ def student_delete(request, pk):
     if request.method == 'POST':
         student.delete()
         return redirect('frontend_school:students_list')
-    return render(request, 'school_panel/confirm_delete.html', {'object': student, 'type': 'o\'quvchini'})
+    return render(request, 'school_panel/confirm_delete.html', {'object': student, 'type': _('o\'quvchini')})
 
 @login_required(login_url='login')
 def teacher_add(request):
@@ -407,8 +409,10 @@ def teacher_add(request):
             teacher.username = username
             
             # 3. Generate Random Password (12 chars)
-            alphabet = string.ascii_letters + string.digits
-            password = ''.join(secrets.choice(alphabet) for i in range(12))
+            password = form.cleaned_data.get('password')
+            if not password:
+                alphabet = string.ascii_letters + string.digits
+                password = ''.join(secrets.choice(alphabet) for i in range(12))
             
             teacher.set_password(password)
             teacher.raw_password = password
@@ -418,7 +422,7 @@ def teacher_add(request):
             return redirect('frontend_school:teachers_list')
     else:
         form = TeacherForm()
-    return render(request, 'school_panel/teacher_form.html', {'form': form, 'title': 'Yangi o\'qituvchi qo\'shish'})
+    return render(request, 'school_panel/teacher_form.html', {'form': form, 'title': _('Yangi o\'qituvchi qo\'shish')})
 
 @login_required(login_url='login')
 def teacher_edit(request, pk):
@@ -430,7 +434,7 @@ def teacher_edit(request, pk):
             return redirect('frontend_school:teachers_list')
     else:
         form = TeacherForm(instance=teacher)
-    return render(request, 'school_panel/teacher_form.html', {'form': form, 'title': 'O\'qituvchi ma\'lumotlarini tahrirlash'})
+    return render(request, 'school_panel/teacher_form.html', {'form': form, 'title': _('O\'qituvchi ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
 def teacher_delete(request, pk):
@@ -438,7 +442,7 @@ def teacher_delete(request, pk):
     if request.method == 'POST':
         teacher.delete()
         return redirect('frontend_school:teachers_list')
-    return render(request, 'school_panel/confirm_delete.html', {'object': teacher, 'type': 'o\'qituvchini'})
+    return render(request, 'school_panel/confirm_delete.html', {'object': teacher, 'type': _('o\'qituvchini')})
 
 @login_required(login_url='login')
 def news_add(request):
@@ -451,7 +455,7 @@ def news_add(request):
             return redirect('frontend_school:news_list')
     else:
         form = NewsForm()
-    return render(request, 'school_panel/news_form.html', {'form': form, 'title': 'Yangi yangilik qo\'shish'})
+    return render(request, 'school_panel/news_form.html', {'form': form, 'title': _('Yangi yangilik qo\'shish')})
 
 @login_required(login_url='login')
 def news_edit(request, pk):
@@ -463,7 +467,7 @@ def news_edit(request, pk):
             return redirect('frontend_school:news_list')
     else:
         form = NewsForm(instance=news)
-    return render(request, 'school_panel/news_form.html', {'form': form, 'title': 'Yangilikni tahrirlash'})
+    return render(request, 'school_panel/news_form.html', {'form': form, 'title': _('Yangilikni tahrirlash')})
 
 @login_required(login_url='login')
 def news_delete(request, pk):
@@ -471,7 +475,7 @@ def news_delete(request, pk):
     if request.method == 'POST':
         news.delete()
         return redirect('frontend_school:news_list')
-    return render(request, 'school_panel/confirm_delete.html', {'object': news, 'type': 'yangilikni'})
+    return render(request, 'school_panel/confirm_delete.html', {'object': news, 'type': _('yangilikni')})
 
 @login_required(login_url='login')
 def profile(request):
@@ -488,7 +492,7 @@ def change_password(request):
             user.raw_password = form.cleaned_data.get('new_password1')
             user.save()
             update_session_auth_hash(request, user)
-            messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
+            messages.success(request, _('Parolingiz muvaffaqiyatli o\'zgartirildi!'))
             return redirect('frontend_school:profile')
     else:
         form = PasswordChangeForm(request.user)

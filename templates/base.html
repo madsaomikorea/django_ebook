@@ -1,11 +1,13 @@
 {% load static %}
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Online Kutibxona{% endblock %}</title>
+    <title>{% block title %}{% trans "Online Kutibxona" %}{% endblock %}</title>
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_head %}{% endblock %}
@@ -162,7 +164,7 @@
         <aside class="sidebar glass-panel" id="sidebar">
             <div class="sidebar-header" style="margin-bottom: 40px; text-align: center;">
                 <h2 class="gradient-text" style="font-size: 1.5rem; white-space: nowrap;">
-                    <i class="fas fa-book-open"></i> Online Kutibxona
+                    <i class="fas fa-book-open"></i> {% trans "Online Kutibxona" %}
                 </h2>
             </div>
             <nav class="sidebar-nav custom-scrollbar">

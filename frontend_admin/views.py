@@ -8,6 +8,7 @@ from frontend_school.forms import NewsForm
 from schools.models import School, Institution, District
 from accounts.models import CustomUser
 from books.models import Book, BookIssue
+from django.utils.translation import gettext as _
 import secrets
 import string
 
@@ -141,7 +142,7 @@ def muassasa_add(request):
             return redirect('frontend_admin:muassasalar_list')
     else:
         form = InstitutionForm()
-    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': 'Yangi muassasa qo\'shish'})
+    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Yangi muassasa qo\'shish')})
 
 @login_required(login_url='login')
 def muassasa_edit(request, pk):
@@ -153,7 +154,7 @@ def muassasa_edit(request, pk):
             return redirect('frontend_admin:muassasalar_list')
     else:
         form = InstitutionForm(instance=inst)
-    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': 'Muassasa ma\'lumotlarini tahrirlash'})
+    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Muassasa ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
 def muassasa_delete(request, pk):
@@ -161,7 +162,7 @@ def muassasa_delete(request, pk):
     if request.method == 'POST':
         inst.delete()
         return redirect('frontend_admin:muassasalar_list')
-    return render(request, 'admin_panel/confirm_delete.html', {'object': inst, 'type': 'muassasani'})
+    return render(request, 'admin_panel/confirm_delete.html', {'object': inst, 'type': _('muassasani')})
 
 from .forms import DistrictForm, SchoolFormSet
 
@@ -189,10 +190,7 @@ def district_add(request):
             return redirect('frontend_admin:districts_list')
     else:
         form = DistrictForm()
-    return render(request, 'admin_panel/district_form.html', {
-        'form': form, 
-        'title': 'Yangi tuman qo\'shish'
-    })
+    return render(request, 'admin_panel/district_form.html', {'form': form, 'title': _('Yangi tuman qo\'shish')})
 
 @login_required(login_url='login')
 def district_edit(request, pk):
@@ -219,10 +217,7 @@ def district_edit(request, pk):
             return redirect('frontend_admin:districts_list')
     else:
         form = DistrictForm(instance=district)
-    return render(request, 'admin_panel/district_form.html', {
-        'form': form, 
-        'title': 'Tuman ma\'lumotlarini tahrirlash'
-    })
+    return render(request, 'admin_panel/district_form.html', {'form': form, 'title': _('Tuman ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
 def district_delete(request, pk):
@@ -230,7 +225,7 @@ def district_delete(request, pk):
     if request.method == 'POST':
         district.delete()
         return redirect('frontend_admin:districts_list')
-    return render(request, 'admin_panel/confirm_delete.html', {'object': district, 'type': 'tumanni'})
+    return render(request, 'admin_panel/confirm_delete.html', {'object': district, 'type': _('tumanni')})
 
 @login_required(login_url='login')
 def school_add(request):
@@ -280,9 +275,9 @@ def school_add(request):
                 ActionLog.objects.create(
                     user=request.user,
                     action_type='CREATE',
-                    message=f"Maktab ({school.name}) va uning admini ({admin_user.username}) sozlandi/yaratildi."
+                    message=_("Yangi maktab ({}) va uning admini ({}) yaratildi.").format(school.name, admin_user.username)
                 )
-                messages.success(request, f"Maktab va admin yaratildi! Login: {admin_user.username}")
+                messages.success(request, _("Maktab va admin yaratildi! Login: {}").format(admin_user.username))
             else:
                 messages.success(request, _("Maktab yaratildi (admin biriktirilmadi)."))
             
@@ -290,7 +285,6 @@ def school_add(request):
 
     else:
         form = UnifiedSchoolForm()
-    
     # Fetch Districts and Schools for the selection UI
     from django.db.models import Prefetch
     districts = District.objects.prefetch_related(
@@ -302,7 +296,7 @@ def school_add(request):
 
     return render(request, 'admin_panel/school_form.html', {
         'form': form, 
-        'title': 'Yangi maktab qo\'shish',
+        'title': _('Yangi maktab qo\'shish'),
         'districts': districts,
         'schools_with_admins': list(schools_with_admins)
     })
@@ -361,7 +355,7 @@ def school_edit(request, pk):
 
     return render(request, 'admin_panel/school_form.html', {
         'form': form, 
-        'title': 'Maktab ma\'lumotlarini tahrirlash',
+        'title': _('Maktab ma\'lumotlarini tahrirlash'),
         'districts': districts,
         'schools_with_admins': list(schools_with_admins)
     })
@@ -372,7 +366,7 @@ def school_delete(request, pk):
     if request.method == 'POST':
         school.delete()
         return redirect('frontend_admin:schools_list')
-    return render(request, 'admin_panel/confirm_delete.html', {'object': school, 'type': 'maktabni'})
+    return render(request, 'admin_panel/confirm_delete.html', {'object': school, 'type': _('maktabni')})
 
 from .forms import SchoolAdminForm
 
@@ -410,7 +404,7 @@ def admin_add(request):
             return redirect('frontend_admin:all_users_list')
     else:
         form = SchoolAdminForm()
-    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': 'Yangi maktab admini qo\'shish'})
+    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Yangi maktab admini qo\'shish')})
 
 @login_required(login_url='login')
 def admin_edit(request, pk):
@@ -422,7 +416,7 @@ def admin_edit(request, pk):
             return redirect('frontend_admin:all_users_list')
     else:
         form = SchoolAdminForm(instance=admin)
-    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': 'Admin ma\'lumotlarini tahrirlash'})
+    return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Admin ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
 def profile(request):
@@ -440,7 +434,7 @@ def change_password(request):
             user.raw_password = form.cleaned_data.get('new_password1')
             user.save()
             update_session_auth_hash(request, user)
-            messages.success(request, 'Parolingiz muvaffaqiyatli o\'zgartirildi!')
+            messages.success(request, _('Parolingiz muvaffaqiyatli o\'zgartirildi!'))
             return redirect('frontend_admin:profile')
     else:
         form = PasswordChangeForm(request.user)

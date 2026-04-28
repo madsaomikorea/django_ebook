@@ -62,9 +62,9 @@
             
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                 <div>
-                    <h4 style="margin: 0; font-size: 1.1rem; color: white;">{{ school.name }}</h4>
+                    <h4 style="margin: 0; font-size: 1.1rem; color: white;">{% trans school.name %}</h4>
                     <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
-                        <i class="fas fa-map-marker-alt" style="font-size: 0.75rem;"></i> {{ school.district.name|default:"—" }}
+                        <i class="fas fa-map-marker-alt" style="font-size: 0.75rem;"></i> {% if school.district %}{% trans school.district.name %}{% else %}—{% endif %}
                     </p>
                 </div>
                 <span class="glass-card" style="padding: 4px 10px; font-size: 0.7rem; border-radius: 8px; color: var(--text-muted);">

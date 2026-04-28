@@ -74,6 +74,25 @@
             text-align: center;
             font-size: 0.9rem;
         }
+        .language-item {
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+        .language-item:hover {
+            background: rgba(255,255,255,0.1) !important;
+        }
+        .language-item.active {
+            color: var(--primary);
+            background: rgba(255,255,255,0.05);
+        }
     </style>
 </head>
 <body>
@@ -82,6 +101,33 @@
         <div class="auth-overlay"></div>
         
         <div class="auth-card">
+            <!-- Language Selector for Login Page -->
+            <div style="position: absolute; top: 15px; right: 15px; z-index: 100;">
+                <div class="language-selector-login" style="position: relative; display: inline-block;">
+                    <button type="button" onclick="toggleLangDropdown()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.8rem;">
+                        <i class="fas fa-globe"></i>
+                        {% get_current_language as LANGUAGE_CODE %}
+                        <span style="text-transform: uppercase;">{{ LANGUAGE_CODE }}</span>
+                    </button>
+                    <div id="login-lang-dropdown" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 5px; background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 5px; min-width: 120px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <button type="button" 
+                                    onclick="changeLanguage('{{ language.code }}')"
+                                    class="language-item {% if language.code == LANGUAGE_CODE %}active{% endif %}">
+                                {{ language.name_local }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                <form id="lang-form" action="{% url 'set_language' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <input name="language" id="lang-input" type="hidden" value="">
+                </form>
+            </div>
+
             <div style="text-align: center; margin-bottom: 40px;">
                 <h1 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 10px;">{% trans "Xush kelibsiz" %}</h1>
                 <p style="color: var(--text-muted);">{% trans "Online kutibxonaga kirish" %}</p>
@@ -111,5 +157,24 @@
             </form>
         </div>
     </div>
+    <script>
+        function toggleLangDropdown() {
+            const dropdown = document.getElementById('login-lang-dropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function changeLanguage(code) {
+            document.getElementById('lang-input').value = code;
+            document.getElementById('lang-form').submit();
+        }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.closest('.language-selector-login')) {
+                const dropdown = document.getElementById('login-lang-dropdown');
+                if (dropdown) dropdown.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

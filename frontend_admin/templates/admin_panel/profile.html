@@ -15,7 +15,7 @@
             <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #ef4444, #f59e0b); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
                 <i class="fas fa-user-crown" style="font-size: 4rem; color: white;"></i>
             </div>
-            <h2>{{ user.first_name|default:"Super Admin" }}</h2>
+            <h2>{% if user.first_name %}{{ user.first_name }}{% else %}{% trans "Super Admin" %}{% endif %}</h2>
             <p style="color: var(--text-muted);">
                 {{ user.get_role_display }} | {% trans "Tizim administratori" %}
             </p>

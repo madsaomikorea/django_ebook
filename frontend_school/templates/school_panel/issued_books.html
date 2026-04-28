@@ -49,13 +49,13 @@
                     <td style="padding: 15px 20px;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-weight: 500;">{{ issue.user.first_name }} {{ issue.user.last_name }}</span>
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">ID: {{ issue.user.username }}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">{% trans "ID:" %} {{ issue.user.username }}</span>
                         </div>
                     </td>
                     <td style="padding: 15px 20px;">
                         {% if issue.user.role == 'student' %}
                             <span style="padding: 4px 10px; background: rgba(99, 102, 241, 0.1); color: var(--primary); border-radius: 15px; font-size: 0.8rem;">
-                                {{ issue.user.grade|default:"Sinf ko'rsatilmagan" }}
+                                {% if issue.user.grade %}{{ issue.user.grade }}{% else %}{% trans "Sinf ko'rsatilmagan" %}{% endif %}
                             </span>
                         {% elif issue.user.role == 'teacher' %}
                             <span style="padding: 4px 10px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 15px; font-size: 0.8rem;">

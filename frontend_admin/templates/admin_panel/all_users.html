@@ -47,7 +47,7 @@
                             {{ user.get_role_display }}
                         </span>
                     </td>
-                    <td style="padding: 15px; color: var(--text-muted);">{{ user.school.name|default:"-" }}</td>
+                    <td style="padding: 15px; color: var(--text-muted);">{% if user.school %}{% trans user.school.name %}{% else %}-{% endif %}</td>
                     <td style="padding: 15px; color: var(--text-muted);">{{ user.date_joined|date:"Y-m-d H:i" }}</td>
                     <td style="padding: 15px;">
                         {% if user.role == 'school_admin' %}
