@@ -1262,3 +1262,33 @@ msgstr "Черновик"
 
 msgid "Tuman ma'lumotlari"
 msgstr "Данные района"
+
+msgid "Tumanni tanlang"
+msgstr "Выберите район"
+
+msgid "Mavjud maktablar"
+msgstr "Доступные школы"
+
+msgid "Bo'sh maktab qolmagan"
+msgstr "Свободных школ не осталось"
+
+msgid "maktab"
+msgstr "школа"
+
+msgid "Login bo'sh!"
+msgstr "Логин свободен!"
+
+msgid "Ushbu login band!"
+msgstr "Этот логин занят!"
+
+msgid "Login kiriting"
+msgstr "Введите логин"
+
+msgid "Admin"
+msgstr "Админ"
+
+msgid "User"
+msgstr "Пользователь"
+
+msgid "Super Admin | Online Kutibxona"
+msgstr "Супер Админ | Онлайн Библиотека"

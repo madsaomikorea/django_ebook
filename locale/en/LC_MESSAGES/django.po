@@ -936,6 +936,42 @@ msgstr "Edit School Data"
 msgid "maktabni"
 msgstr "school"
 
+msgid "Tuman ma'lumotlari"
+msgstr "District Information"
+
+msgid "Tumanni tanlang"
+msgstr "Select District"
+
+msgid "Mavjud maktablar"
+msgstr "Available Schools"
+
+msgid "Bo'sh maktab qolmagan"
+msgstr "No available schools"
+
+msgid "maktab"
+msgstr "school"
+
+msgid "Login bo'sh!"
+msgstr "Login is free!"
+
+msgid "Ushbu login band!"
+msgstr "This login is taken!"
+
+msgid "Login kiriting"
+msgstr "Enter login"
+
+msgid "Super Admin"
+msgstr "Super Admin"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "User"
+msgstr "User"
+
+msgid "Super Admin | Online Kutibxona"
+msgstr "Super Admin | Online Library"
+
 msgid "Yangi maktab admini qo'shish"
 msgstr "Add School Admin"
 
@@ -1205,9 +1241,6 @@ msgstr "Book '{}' received from {}"
 msgid "Umumiy"
 msgstr "General"
 
-msgid "Super Admin"
-msgstr "Super Admin"
-
 msgid "O'qituvchi"
 msgstr "Teacher"
 
@@ -1256,6 +1289,3 @@ msgstr "Published"
 
 msgid "Qoralama"
 msgstr "Draft"
-
-msgid "Tuman ma'lumotlari"
-msgstr "District Information"
