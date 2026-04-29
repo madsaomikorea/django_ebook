@@ -15,12 +15,19 @@ import string
 @login_required(login_url='login')
 def dashboard(request):
     from stats.models import ActionLog
+    from django.db.models import Exists, OuterRef
+    from accounts.models import CustomUser
+    
+    active_schools_query = School.objects.annotate(
+        has_admin=Exists(CustomUser.objects.filter(school=OuterRef('pk'), role='school_admin'))
+    ).filter(has_admin=True)
+
     context = {
-        'school_count': School.objects.count(),
+        'school_count': active_schools_query.count(),
         'user_count': CustomUser.objects.count(),
         'total_books': Book.objects.count(),
         'active_loans': BookIssue.objects.filter(is_returned=False).count(),
-        'schools': School.objects.all().order_by('-id')[:5],
+        'schools': active_schools_query.order_by('-id')[:5],
         'institutions_count': Institution.objects.count(),
         'recent_logs': ActionLog.objects.all().order_by('-created_at')[:10],
     }
@@ -28,27 +35,40 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def schools_list(request):
-    from django.db.models import Count, Q
+    from django.db.models import Count, Q, Exists, OuterRef
     district_id = request.GET.get('district')
     
+    # Only show schools that have an admin (fully configured)
+    from accounts.models import CustomUser
     schools = School.objects.annotate(
+        has_admin=Exists(CustomUser.objects.filter(school=OuterRef('pk'), role='school_admin')),
         student_count=Count('customuser', filter=Q(customuser__role='student')),
         book_count=Count('book', distinct=True),
         category_count=Count('book__category', distinct=True)
-    )
+    ).filter(has_admin=True)
     
     if district_id:
         schools = schools.filter(district_id=district_id)
         
     schools = schools.order_by('-id')
-    from django.db.models import Count
-    districts = District.objects.annotate(school_count=Count('schools')).order_by('name')
+    districts = District.objects.annotate(school_count=Count('schools', filter=Q(schools__customuser__role='school_admin'))).order_by('name')
     
     return render(request, 'admin_panel/schools.html', {
         'schools': schools,
         'districts': districts,
         'current_district': district_id
     })
+
+from django.http import JsonResponse
+
+@login_required(login_url='login')
+def check_username(request):
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'available': False, 'error': _('Login kiriting')})
+    
+    exists = CustomUser.objects.filter(username=username).exists()
+    return JsonResponse({'available': not exists})
 
 @login_required(login_url='login')
 def muassasalar_list(request):
@@ -57,8 +77,10 @@ def muassasalar_list(request):
 
 @login_required(login_url='login')
 def districts_list(request):
-    from django.db.models import Count
-    districts = District.objects.annotate(school_count=Count('schools')).order_by('name')
+    from django.db.models import Count, Q
+    districts = District.objects.annotate(
+        school_count=Count('schools', filter=Q(schools__customuser__role='school_admin'))
+    ).order_by('name')
     return render(request, 'admin_panel/districts.html', {'districts': districts})
 
 @login_required(login_url='login')

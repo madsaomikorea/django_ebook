@@ -133,7 +133,7 @@ msgid "UPDATE"
 msgstr "Jańalaw"
 
 msgid "Superuser"
-msgstr "Superpaydalanıwshı"
+msgstr "Sistema administratorı"
 
 msgid "School Admin"
 msgstr "Mektep admini"
@@ -1031,7 +1031,7 @@ msgid "Tizim administratori"
 msgstr "Sistema administratorı"
 
 msgid "Roli"
-msgstr "Rol"
+msgstr "Rolı"
 
 msgid "O'chirishni tasdiqlang"
 msgstr "Óshiriwdi tastıyqlań"
@@ -1132,10 +1132,10 @@ msgid "Maktab biriktirilmagan"
 msgstr "Mektep biriktirilmegen"
 
 msgid "ID raqam"
-msgstr "ID nomer"
+msgstr "ID nomeri"
 
 msgid "A'zo bo'lgan sana"
-msgstr "Aǵza bolǵan sáne"
+msgstr "Aǵza bolǵan sánesi"
 
 msgid "Ma'lumotlarni tahrirlash"
 msgstr "Maǵlıwmatlardı ońlaw"
@@ -1213,6 +1213,18 @@ msgstr "Ulıwma"
 msgid "Super Admin"
 msgstr "Super Admin"
 
+msgid "Admin"
+msgstr "Admin"
+
+msgid "User"
+msgstr "Paydalanıwshı"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Super Admin | Online Kutibxona"
+msgstr "Super Admin | Onlayn Kitapxana"
+
 msgid "O'qituvchi"
 msgstr "Oqıtıwshı"
 
@@ -1263,4 +1275,25 @@ msgid "Qoralama"
 msgstr "Joba"
 
 msgid "Tuman ma'lumotlari"
-msgstr "Rayon maǵlıwmatları"
+msgstr "Rayon maǵlıwmatlari"
+
+msgid "Tumanni tanlang"
+msgstr "Rayondı saylań"
+
+msgid "Mavjud maktablar"
+msgstr "Mavjud mektepler"
+
+msgid "Bo'sh maktab qolmagan"
+msgstr "Bos mektep qalmadı"
+
+msgid "maktab"
+msgstr "mektep"
+
+msgid "Login bo'sh!"
+msgstr "Login bos!"
+
+msgid "Ushbu login band!"
+msgstr "Bul login bánt!"
+
+msgid "Login kiriting"
+msgstr "Logindi kiritiń"
