@@ -61,7 +61,7 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
         {% for school in schools %}
         <div class="glass-card school-card" 
-             onclick="window.location='{% url 'frontend_admin:school_detail' school.pk %}';">
+             onclick="window.location=`{% url 'frontend_admin:school_detail' school.pk %}`;">
             
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                 <div>

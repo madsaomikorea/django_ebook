@@ -33,10 +33,20 @@ ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
     'https://elektronkutibxan-production.up.railway.app',
     'https://elektronkutibxan-production-7949.up.railway.app',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
 ]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
+
+# Only require secure cookies in production to allow local HTTP testing
+if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('SECURE_COOKIES', 'False').lower() in ('true', '1', 't'):
+    CSRF_COOKIE_SAMESITE = 'None'
+    CSRF_COOKIE_SECURE = True
+else:
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SECURE = False
+
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 # Application definition
 

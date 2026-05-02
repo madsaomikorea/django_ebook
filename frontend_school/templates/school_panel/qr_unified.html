@@ -311,7 +311,9 @@
                 resultMsg.style.borderLeftColor = themeColor;
                 resIconBg.style.background = themeColor;
                 resIcon.className = isIssue ? 'fas fa-book-reader' : 'fas fa-check';
-                resText.innerHTML = `<strong>${data.message}</strong><br><span style="opacity: 0.8">{% trans 'Foydalanuvchi' %}: ${data.student}</span>`;
+                resText.innerHTML = `<strong></strong><br><span style="opacity: 0.8">{% trans 'Foydalanuvchi' %}: <span id="res-student-name"></span></span>`;
+                resText.querySelector('strong').textContent = data.message;
+                resText.querySelector('#res-student-name').textContent = data.student;
             } else {
                 resStatus.innerText = "{% trans 'Xatolik!' %}";
                 resStatus.style.color = "#ef4444";

@@ -170,25 +170,34 @@
     }
 </style>
 
-<script>
-const districtsData = {
+<script id="districts-data" type="application/json">
+{
     {% for d in districts %}
     "{{ d.id }}": {
-        "name": "{{ d.name }}",
+        "name": "{{ d.name|escapejs }}",
         "schools": [
             {% for s in d.schools.all %}
             {
                 "id": "{{ s.id }}",
-                "name": "{{ s.name }}",
-                "address": "{{ s.address }}",
-                "contact": "{{ s.contact }}",
+                "name": "{{ s.name|escapejs }}",
+                "address": "{{ s.address|escapejs }}",
+                "contact": "{{ s.contact|escapejs }}",
                 "has_admin": {% if s.id in schools_with_admins %}true{% else %}false{% endif %}
-            },
+            }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]
-    },
+    }{% if not forloop.last %},{% endif %}
     {% endfor %}
-};
+}
+</script>
+
+<script>
+let districtsData = {};
+try {
+    districtsData = JSON.parse(document.getElementById('districts-data').textContent);
+} catch(e) {
+    console.error("Error parsing districts data", e);
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const districtSelect = document.getElementById('id_district');

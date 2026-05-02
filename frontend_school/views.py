@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+school_admin_required = user_passes_test(lambda u: u.role == 'school_admin' and u.school is not None, login_url='login')
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Q
@@ -21,6 +23,7 @@ from .models import News
 from .forms import BookForm, StudentForm, TeacherForm, NewsForm
 
 @login_required(login_url='login')
+@school_admin_required
 def dashboard(request):
     if request.user.role != 'school_admin':
         return redirect('frontend_user:library')
@@ -51,6 +54,7 @@ def dashboard(request):
     return render(request, 'school_panel/dashboard.html', context)
 
 @login_required(login_url='login')
+@school_admin_required
 def students_list(request):
     school = request.user.school
     query = request.GET.get('q')
@@ -66,9 +70,16 @@ def students_list(request):
         )
         
     students = students.order_by('last_name', 'first_name')
-    return render(request, 'school_panel/students.html', {'students': students, 'query': query})
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(students, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'school_panel/students.html', {'students': page_obj, 'page_obj': page_obj, 'query': query})
 
 @login_required(login_url='login')
+@school_admin_required
 def teachers_list(request):
     school = request.user.school
     query = request.GET.get('q')
@@ -83,9 +94,16 @@ def teachers_list(request):
         )
         
     teachers = teachers.order_by('last_name', 'first_name')
-    return render(request, 'school_panel/teachers.html', {'teachers': teachers, 'query': query})
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(teachers, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'school_panel/teachers.html', {'teachers': page_obj, 'page_obj': page_obj, 'query': query})
 
 @login_required(login_url='login')
+@school_admin_required
 def books_list(request):
     school = request.user.school
     query = request.GET.get('q')
@@ -109,8 +127,14 @@ def books_list(request):
     from books.models import Category
     categories = Category.objects.all().order_by('name')
     
+    from django.core.paginator import Paginator
+    paginator = Paginator(books, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     return render(request, 'school_panel/books.html', {
-        'books': books, 
+        'books': page_obj, 
+        'page_obj': page_obj,
         'categories': categories,
         'query': query,
         'selected_category': int(category_id) if category_id else None,
@@ -118,12 +142,14 @@ def books_list(request):
     })
 
 @login_required(login_url='login')
+@school_admin_required
 def issued_books_list(request):
     school = request.user.school
     issues = BookIssue.objects.filter(book__school=school, is_returned=False).order_by('-issued_at')
     return render(request, 'school_panel/issued_books.html', {'issues': issues})
 
 @login_required(login_url='login')
+@school_admin_required
 def history_list(request):
     school = request.user.school
     query = request.GET.get('q')
@@ -138,9 +164,15 @@ def history_list(request):
             Q(user__last_name__icontains=query)
         )
     
-    return render(request, 'school_panel/history.html', {'history': history, 'query': query})
+    from django.core.paginator import Paginator
+    paginator = Paginator(history, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'school_panel/history.html', {'history': page_obj, 'page_obj': page_obj, 'query': query})
 
 @login_required(login_url='login')
+@school_admin_required
 def news_list(request):
     school = request.user.school
     from django.db.models import Q
@@ -154,11 +186,15 @@ def news_list(request):
     return render(request, 'school_panel/news.html', {'news': news})
 
 @login_required(login_url='login')
+@school_admin_required
 def qr_unified(request):
     return render(request, 'school_panel/qr_unified.html')
 
 @csrf_exempt
 def process_qr_unified(request):
+    if not request.user.is_authenticated or request.user.role != 'school_admin':
+        return JsonResponse({'status': 'error', 'message': 'Ruxsat etilmagan'})
+        
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -178,6 +214,9 @@ def process_qr_unified(request):
 
 @csrf_exempt
 def process_qr(request):
+    if not request.user.is_authenticated or request.user.role != 'school_admin':
+        return JsonResponse({'status': 'error', 'message': 'Ruxsat etilmagan'})
+        
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -234,6 +273,9 @@ def process_qr(request):
 
 @csrf_exempt
 def process_receive_qr(request):
+    if not request.user.is_authenticated or request.user.role != 'school_admin':
+        return JsonResponse({'status': 'error', 'message': 'Ruxsat etilmagan'})
+        
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -294,6 +336,7 @@ def process_receive_qr(request):
 
 
 @login_required(login_url='login')
+@school_admin_required
 def book_add(request):
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
@@ -307,6 +350,7 @@ def book_add(request):
     return render(request, 'school_panel/book_form.html', {'form': form, 'title': _('Yangi kitob qo\'shish')})
 
 @login_required(login_url='login')
+@school_admin_required
 def book_edit(request, pk):
     book = get_object_or_404(Book, pk=pk, school=request.user.school)
     if request.method == 'POST':
@@ -319,6 +363,7 @@ def book_edit(request, pk):
     return render(request, 'school_panel/book_form.html', {'form': form, 'title': _('Kitobni tahrirlash')})
 
 @login_required(login_url='login')
+@school_admin_required
 def book_delete(request, pk):
     book = get_object_or_404(Book, pk=pk, school=request.user.school)
     if request.method == 'POST':
@@ -327,6 +372,7 @@ def book_delete(request, pk):
     return render(request, 'school_panel/confirm_delete.html', {'object': book, 'type': _('kitobni')})
 
 @login_required(login_url='login')
+@school_admin_required
 def student_add(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
@@ -366,6 +412,7 @@ def student_add(request):
     return render(request, 'school_panel/student_form.html', {'form': form, 'title': _('Yangi o\'quvchi qo\'shish')})
 
 @login_required(login_url='login')
+@school_admin_required
 def student_edit(request, pk):
     student = get_object_or_404(CustomUser, pk=pk, school=request.user.school, role='student')
     if request.method == 'POST':
@@ -378,6 +425,7 @@ def student_edit(request, pk):
     return render(request, 'school_panel/student_form.html', {'form': form, 'title': _('O\'quvchi ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
+@school_admin_required
 def student_delete(request, pk):
     student = get_object_or_404(CustomUser, pk=pk, school=request.user.school, role='student')
     if request.method == 'POST':
@@ -386,6 +434,7 @@ def student_delete(request, pk):
     return render(request, 'school_panel/confirm_delete.html', {'object': student, 'type': _('o\'quvchini')})
 
 @login_required(login_url='login')
+@school_admin_required
 def teacher_add(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
@@ -425,6 +474,7 @@ def teacher_add(request):
     return render(request, 'school_panel/teacher_form.html', {'form': form, 'title': _('Yangi o\'qituvchi qo\'shish')})
 
 @login_required(login_url='login')
+@school_admin_required
 def teacher_edit(request, pk):
     teacher = get_object_or_404(CustomUser, pk=pk, school=request.user.school, role='teacher')
     if request.method == 'POST':
@@ -437,6 +487,7 @@ def teacher_edit(request, pk):
     return render(request, 'school_panel/teacher_form.html', {'form': form, 'title': _('O\'qituvchi ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
+@school_admin_required
 def teacher_delete(request, pk):
     teacher = get_object_or_404(CustomUser, pk=pk, school=request.user.school, role='teacher')
     if request.method == 'POST':
@@ -445,6 +496,7 @@ def teacher_delete(request, pk):
     return render(request, 'school_panel/confirm_delete.html', {'object': teacher, 'type': _('o\'qituvchini')})
 
 @login_required(login_url='login')
+@school_admin_required
 def news_add(request):
     if request.method == 'POST':
         form = NewsForm(request.POST, request.FILES)
@@ -458,6 +510,7 @@ def news_add(request):
     return render(request, 'school_panel/news_form.html', {'form': form, 'title': _('Yangi yangilik qo\'shish')})
 
 @login_required(login_url='login')
+@school_admin_required
 def news_edit(request, pk):
     news = get_object_or_404(News, pk=pk, school=request.user.school)
     if request.method == 'POST':
@@ -470,6 +523,7 @@ def news_edit(request, pk):
     return render(request, 'school_panel/news_form.html', {'form': form, 'title': _('Yangilikni tahrirlash')})
 
 @login_required(login_url='login')
+@school_admin_required
 def news_delete(request, pk):
     news = get_object_or_404(News, pk=pk, school=request.user.school)
     if request.method == 'POST':
@@ -478,12 +532,14 @@ def news_delete(request, pk):
     return render(request, 'school_panel/confirm_delete.html', {'object': news, 'type': _('yangilikni')})
 
 @login_required(login_url='login')
+@school_admin_required
 def profile(request):
     if request.user.role != 'school_admin':
         return redirect('frontend_user:library')
     return render(request, 'school_panel/profile.html')
 
 @login_required(login_url='login')
+@school_admin_required
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)

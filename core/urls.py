@@ -27,7 +27,7 @@ admin.site.site_title = _("Kutubxona Admin")
 admin.site.index_title = _("Boshqaruv")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('secret-django-admin/', admin.site.urls),
     path('', lambda r: redirect('login')), # Redirect root to login
     path('', include('accounts.urls')),
     path('admin-panel/', include('frontend_admin.urls')),

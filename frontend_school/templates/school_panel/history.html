@@ -44,7 +44,7 @@
             </thead>
             <tbody id="history-table-body">
                 {% for issue in history %}
-                <tr class="history-row glass-card" data-search="{{ issue.book.title|lower }} {{ issue.user.first_name|lower }} {{ issue.user.last_name|lower }} {{ issue.user.username|lower }} {{ issue.user.grade|default:''|lower }}" style="transition: 0.3s; opacity: {% if issue.is_returned %}0.85{% else %}1{% endif %};">
+                <tr class="history-row glass-card {% if issue.is_returned %}returned-row{% endif %}" data-search="{{ issue.book.title|lower }} {{ issue.user.first_name|lower }} {{ issue.user.last_name|lower }} {{ issue.user.username|lower }} {{ issue.user.grade|default:''|lower }}" style="transition: 0.3s;">
                     <td style="padding: 15px 20px; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="width: 40px; height: 55px; background: rgba(255,255,255,0.05); border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
@@ -116,6 +116,7 @@
                 </tr>
             </tbody>
         </table>
+        {% include 'pagination.html' %}
     </div>
 </div>
 

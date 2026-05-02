@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
+
+superuser_required = user_passes_test(lambda u: u.is_superuser, login_url='login')
 
 from frontend_school.models import News
 from frontend_school.forms import NewsForm
@@ -13,6 +15,7 @@ import secrets
 import string
 
 @login_required(login_url='login')
+@superuser_required
 def dashboard(request):
     from stats.models import ActionLog
     from django.db.models import Exists, OuterRef
@@ -34,6 +37,7 @@ def dashboard(request):
     return render(request, 'admin_panel/dashboard.html', context)
 
 @login_required(login_url='login')
+@superuser_required
 def schools_list(request):
     from django.db.models import Count, Q, Exists, OuterRef
     district_id = request.GET.get('district')
@@ -62,6 +66,7 @@ def schools_list(request):
 from django.http import JsonResponse
 
 @login_required(login_url='login')
+@superuser_required
 def check_username(request):
     username = request.GET.get('username', '').strip()
     if not username:
@@ -71,11 +76,13 @@ def check_username(request):
     return JsonResponse({'available': not exists})
 
 @login_required(login_url='login')
+@superuser_required
 def muassasalar_list(request):
     institutions = Institution.objects.all().order_by('-id')
     return render(request, 'admin_panel/muassasalar.html', {'institutions': institutions})
 
 @login_required(login_url='login')
+@superuser_required
 def districts_list(request):
     from django.db.models import Count, Q
     districts = District.objects.annotate(
@@ -84,6 +91,7 @@ def districts_list(request):
     return render(request, 'admin_panel/districts.html', {'districts': districts})
 
 @login_required(login_url='login')
+@superuser_required
 def statistics(request):
     from django.db.models import Count, Q
     from django.utils import timezone
@@ -119,27 +127,50 @@ def statistics(request):
     return render(request, 'admin_panel/statistics.html', context)
 
 @login_required(login_url='login')
+@superuser_required
 def system_logs(request):
     from stats.models import ActionLog
     logs = ActionLog.objects.all().order_by('-created_at')[:20]
     return render(request, 'admin_panel/logs.html', {'logs': logs})
 
 @login_required(login_url='login')
+@superuser_required
 def all_users_list(request):
     users = CustomUser.objects.all().select_related('school').order_by('-date_joined')
-    return render(request, 'admin_panel/all_users.html', {'users': users})
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(users, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'admin_panel/all_users.html', {'users': page_obj, 'page_obj': page_obj})
 
 @login_required(login_url='login')
+@superuser_required
 def all_books_list(request):
     books = Book.objects.all().select_related('school', 'category').order_by('-id')
-    return render(request, 'admin_panel/all_books.html', {'books': books})
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(books, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'admin_panel/all_books.html', {'books': page_obj, 'page_obj': page_obj})
 
 @login_required(login_url='login')
+@superuser_required
 def all_active_loans_list(request):
     active_loans = BookIssue.objects.filter(is_returned=False).select_related('book__school', 'user').order_by('-issued_at')
-    return render(request, 'admin_panel/all_active_loans.html', {'active_loans': active_loans})
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(active_loans, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'admin_panel/all_active_loans.html', {'active_loans': page_obj, 'page_obj': page_obj})
 
 @login_required(login_url='login')
+@superuser_required
 def school_detail(request, pk):
     school = get_object_or_404(School, pk=pk)
     context = {
@@ -156,6 +187,7 @@ def school_detail(request, pk):
 from .forms import SchoolForm, InstitutionForm, UnifiedSchoolForm
 
 @login_required(login_url='login')
+@superuser_required
 def muassasa_add(request):
     if request.method == 'POST':
         form = InstitutionForm(request.POST)
@@ -167,6 +199,7 @@ def muassasa_add(request):
     return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Yangi muassasa qo\'shish')})
 
 @login_required(login_url='login')
+@superuser_required
 def muassasa_edit(request, pk):
     inst = get_object_or_404(Institution, pk=pk)
     if request.method == 'POST':
@@ -179,6 +212,7 @@ def muassasa_edit(request, pk):
     return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Muassasa ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
+@superuser_required
 def muassasa_delete(request, pk):
     inst = get_object_or_404(Institution, pk=pk)
     if request.method == 'POST':
@@ -189,6 +223,7 @@ def muassasa_delete(request, pk):
 from .forms import DistrictForm, SchoolFormSet
 
 @login_required(login_url='login')
+@superuser_required
 def district_add(request):
     if request.method == 'POST':
         form = DistrictForm(request.POST)
@@ -215,6 +250,7 @@ def district_add(request):
     return render(request, 'admin_panel/district_form.html', {'form': form, 'title': _('Yangi tuman qo\'shish')})
 
 @login_required(login_url='login')
+@superuser_required
 def district_edit(request, pk):
     district = get_object_or_404(District, pk=pk)
     if request.method == 'POST':
@@ -242,6 +278,7 @@ def district_edit(request, pk):
     return render(request, 'admin_panel/district_form.html', {'form': form, 'title': _('Tuman ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
+@superuser_required
 def district_delete(request, pk):
     district = get_object_or_404(District, pk=pk)
     if request.method == 'POST':
@@ -250,6 +287,7 @@ def district_delete(request, pk):
     return render(request, 'admin_panel/confirm_delete.html', {'object': district, 'type': _('tumanni')})
 
 @login_required(login_url='login')
+@superuser_required
 def school_add(request):
     if request.method == 'POST':
         school_id = request.POST.get('existing_school_id')
@@ -324,6 +362,7 @@ def school_add(request):
     })
 
 @login_required(login_url='login')
+@superuser_required
 def school_edit(request, pk):
     school = get_object_or_404(School, pk=pk)
     admin = CustomUser.objects.filter(school=school, role='school_admin').first()
@@ -335,7 +374,25 @@ def school_edit(request, pk):
             
             # Logic for updating or creating admin details
             if admin:
-                admin.save()
+                admin_username = form.cleaned_data.get('admin_username')
+                admin_password = form.cleaned_data.get('admin_password')
+                
+                updated = False
+                if admin_username and admin.username != admin_username:
+                    admin.username = admin_username
+                    updated = True
+                
+                # Check if password changed from what we knew (raw_password)
+                if admin_password and admin_password != admin.raw_password:
+                    admin.set_password(admin_password)
+                    admin.raw_password = admin_password
+                    updated = True
+                    
+                if updated:
+                    admin.save()
+                    messages.success(request, _("Maktab va admin ma'lumotlari yangilandi!"))
+                else:
+                    messages.success(request, _("Maktab ma'lumotlari yangilandi!"))
             else:
                 # Create NEW admin
                 admin_username = form.cleaned_data.get('admin_username')
@@ -364,6 +421,7 @@ def school_edit(request, pk):
             initial['admin_username'] = admin.username
             if admin.raw_password:
                 initial['admin_password'] = admin.raw_password
+                initial['admin_password_confirm'] = admin.raw_password
 
         
         form = UnifiedSchoolForm(instance=school, initial=initial, current_admin_id=admin.pk if admin else None)
@@ -383,6 +441,7 @@ def school_edit(request, pk):
     })
 
 @login_required(login_url='login')
+@superuser_required
 def school_delete(request, pk):
     school = get_object_or_404(School, pk=pk)
     if request.method == 'POST':
@@ -393,6 +452,7 @@ def school_delete(request, pk):
 from .forms import SchoolAdminForm
 
 @login_required(login_url='login')
+@superuser_required
 def admin_add(request):
     if request.method == 'POST':
         form = SchoolAdminForm(request.POST)
@@ -429,8 +489,13 @@ def admin_add(request):
     return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Yangi maktab admini qo\'shish')})
 
 @login_required(login_url='login')
+@superuser_required
 def admin_edit(request, pk):
     admin = get_object_or_404(CustomUser, pk=pk, role='school_admin')
+    
+    if admin.school:
+        return redirect('frontend_admin:school_edit', pk=admin.school.pk)
+        
     if request.method == 'POST':
         form = SchoolAdminForm(request.POST, instance=admin)
         if form.is_valid():
@@ -441,10 +506,12 @@ def admin_edit(request, pk):
     return render(request, 'admin_panel/muassasa_form.html', {'form': form, 'title': _('Admin ma\'lumotlarini tahrirlash')})
 
 @login_required(login_url='login')
+@superuser_required
 def profile(request):
     return render(request, 'admin_panel/profile.html')
 
 @login_required(login_url='login')
+@superuser_required
 def change_password(request):
     from django.contrib.auth.forms import PasswordChangeForm
     from django.contrib.auth import update_session_auth_hash
@@ -465,6 +532,7 @@ def change_password(request):
 
 # News Management
 @login_required(login_url='login')
+@superuser_required
 def news_list(request):
     # Only superadmins should see global news management
     if not request.user.is_superuser:
@@ -473,6 +541,7 @@ def news_list(request):
     return render(request, 'admin_panel/news/list.html', {'news': news})
 
 @login_required(login_url='login')
+@superuser_required
 def news_add(request):
     if not request.user.is_superuser:
         return redirect('login')
@@ -488,6 +557,7 @@ def news_add(request):
     return render(request, 'admin_panel/news/form.html', {'form': form, 'title': _("Yangi xabar qo'shish")})
 
 @login_required(login_url='login')
+@superuser_required
 def news_edit(request, pk):
     if not request.user.is_superuser:
         return redirect('login')
@@ -502,6 +572,7 @@ def news_edit(request, pk):
     return render(request, 'admin_panel/news/form.html', {'form': form, 'title': _("Xabarni tahrirlash")})
 
 @login_required(login_url='login')
+@superuser_required
 def news_delete(request, pk):
     if not request.user.is_superuser:
         return redirect('login')
